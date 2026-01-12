@@ -224,7 +224,7 @@ def show_board(board):
             line += character + "|"
         print(line)
     
-word_list = ["goodtime", "goodgood", "goodday", "goodheart", "mood", "sugar", "johhny", "vibrations"]
+word_list = ["reaction", "chemical", "coldplay", "coldplay", "space", "yellow", "elton", "hole", "jupiter"]
 
 board = generate_puzzle(word_list, 10, 12)
 
