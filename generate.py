@@ -19,8 +19,8 @@ def generate_puzzle(words, height, width):
 def generate_puzzles(words, height, width, amount):
     sorted_words = sort_words(words)
     rng = np.random.default_rng()
-    grids = []
-    for i in range(0, amount):
+    grids = [find_optimal(sorted_words, 0, np.empty((height, width), str), 0)]
+    for i in range(0, amount - 1):
         current_words = sorted_words[:]
         for j in range(0, len(current_words) - 1, 2):
             # 30% chance to swap positions of 2 words
@@ -255,9 +255,9 @@ def show_board(board):
             line += character + "|"
         print(line)
     
-word_list = ["coldplay", "chemical",  "reaction", "yellow", "elton", "hole", "space", "jupiter"]
+word_list = ["coldplay", "chemical",  "reaction", "yellow", "titanic", "elton", "hole", "space", "jupiter"]
 
-boards = generate_puzzles(word_list, 10, 12, 2)
+boards = generate_puzzles(word_list, 10, 12, 1)
 
 for board in boards:
     show_board(board[1])
