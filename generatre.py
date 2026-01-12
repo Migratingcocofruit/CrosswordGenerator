@@ -32,7 +32,7 @@ def find_optimal(words, list_index, positions, height, width, score):
             for j in range(0, width):
                 # For every valid placement add it to a list with its score
                 word_score = can_place_word(words[list_index], (i, j, orientation), path_grid, words)
-                if(word_score > 0 or (list_index == 0 and word_score > -1)):
+                if(word_score > -1):
                     new_positions = positions[:]
                     new_positions.append((i, j, orientation))
                     possible_next_positions.append((words, list_index + 1, new_positions, height, width, score + word_score))
@@ -137,6 +137,7 @@ def check_crossover(row, column, vertical, grid, words, start_char):
             curr_row -= 1
         else:
             curr_column -= 1
+        i -= 1
 
     curr_row = row
     curr_column = column
