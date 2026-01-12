@@ -79,11 +79,11 @@ def can_place_word(word, position, grid, words):
     # Check for a clear space or border at the start and end
     if(position[2]):
         if(row > 0 and grid[row - 1][column] != np.str_('') or
-           (row + len(word) < grid.shape[0] - 1 and grid[row + len(word) + 1][column] != np.str_(''))):
+           (row + len(word) < grid.shape[0] - 1 and grid[row + len(word)][column] != np.str_(''))):
             return -1
     else:
         if(column > 0 and grid[row][column - 1] != np.str_('') or
-            (column + len(word) < grid.shape[1] - 1 and grid[row][column + len(word) + 1] != np.str_(''))):
+            (column + len(word) < grid.shape[1] - 1 and grid[row][column + len(word)] != np.str_(''))):
             return -1
 
     for char in word:
@@ -224,7 +224,7 @@ def show_board(board):
             line += character + "|"
         print(line)
     
-word_list = ["daniel", "roger", "richard", "dor", "donald", "marco"]
+word_list = ["daniel", "roger", "richard", "dor", "donald", "marco", "alberto", "jesse"]
 
 board = generate_puzzle(word_list, 10, 12)
 
