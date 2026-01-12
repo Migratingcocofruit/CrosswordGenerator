@@ -32,7 +32,7 @@ def find_optimal(words, list_index, positions, height, width, score):
             for j in range(0, width):
                 # For every valid placement add it to a list with its score
                 word_score = can_place_word(words[list_index], (i, j, orientation), path_grid, words)
-                if(word_score > -1):
+                if(word_score > 0 or (list_index == 0 and word_score > -1)):
                     new_positions = positions[:]
                     new_positions.append((i, j, orientation))
                     possible_next_positions.append((words, list_index + 1, new_positions, height, width, score + word_score))
@@ -224,7 +224,7 @@ def show_board(board):
             line += character + "|"
         print(line)
     
-word_list = ["roger", "daniel", "richard", "dor", "donald"]
+word_list = ["daniel", "roger", "richard", "dor", "donald"]
 
 board = generate_puzzle(word_list, 10, 12)
 
