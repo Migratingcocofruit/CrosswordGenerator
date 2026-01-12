@@ -246,6 +246,9 @@ def score_grid(grid):
     return score
 
 def show_board(board):
+    if(len(board) == 0):
+        print("Puzzle Creation Failed")
+        return
     for i in range(0, board.shape[0]):
         line = "|"
         for j in range(0, board.shape[1]):
@@ -255,7 +258,7 @@ def show_board(board):
             line += character + "|"
         print(line)
     
-word_list = ["coldplay", "chemical",  "reaction", "yellow", "titanic", "elton", "hole", "space", "jupiter"]
+word_list = ["touchthesky", "fahrenheit", "aeroplane", "aceshigh", "tincan", "jiujitsu", "bird", "flyaway", "air"]
 
 boards = generate_puzzles(word_list, 10, 12, 1)
 
