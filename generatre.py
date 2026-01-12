@@ -131,7 +131,7 @@ def check_crossover(row, column, vertical, grid, words, start_char):
     else:
         curr_column -= 1
 
-    while spot - i >= 0 and grid[curr_row][curr_column] != np.str_(''):
+    while spot + i >= 0 and grid[curr_row][curr_column] != np.str_(''):
         char_deque.appendleft(grid[curr_row][curr_column])
         if(vertical):
             curr_row -= 1
