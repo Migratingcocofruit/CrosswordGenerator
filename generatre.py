@@ -68,9 +68,9 @@ def find_optimal(words, list_index, positions, height, width, score):
 def can_place_word(word, position, grid, words):
     score = 0
     # Check that we are within bounds
-    if(position[2] and position[0] + len(word) > grid.shape[1]):
+    if(position[2] and position[0] + len(word) > grid.shape[0]):
         return -1
-    if(not(position[2]) and position[1] + len(word) > grid.shape[0]):
+    if(not(position[2]) and position[1] + len(word) > grid.shape[1]):
         return -1
     
     row = position[0]
