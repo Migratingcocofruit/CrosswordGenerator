@@ -7,7 +7,8 @@ from collections import deque
 # height: grid height
 # width: grid width
 def generate_puzzle(words, height, width):
-    best_positions = find_optimal(words, 0, [], height, width, 0)
+    board = np.empty((height, width), str)
+    best_positions = find_optimal(words, 0, [], board, 0)
     grid = build_grid(words, best_positions[1], height, width)
     return grid
 
@@ -18,32 +19,30 @@ def generate_puzzle(words, height, width):
 # positions: list of tuples of the form (row, columm, is_vertical)
 # height: grid height
 # width: grid width
-def find_optimal(words, list_index, positions, height, width, score):
-    path_grid = build_grid(words, positions, height, width)
+def find_optimal(words, list_index, positions, board, score):
+    height = board.shape[0]
+    width = board.shape[1]
     # If we placed all our words calculate the board score
     if(list_index >= len(words)):
         return (score, positions)
-    
-
     # Step to all the possible positions a word can be in
     possible_next_positions = []
     for orientation in (True, False):
         for i in range(0, height):
             for j in range(0, width):
                 # For every valid placement add it to a list with its score
-                word_score = can_place_word(words[list_index], (i, j, orientation), path_grid, words)
+                word_score = can_place_word(words[list_index], (i, j, orientation), board, words)
                 if(word_score > 0 or (list_index == 0 and word_score > -1)):
                     new_positions = positions[:]
                     new_positions.append((i, j, orientation))
-                    possible_next_positions.append((words, list_index + 1, new_positions, height, width, score + word_score))
+                    new_board = np.copy(board)
+                    place_word(words[list_index], new_positions[-1], new_board)
+                    possible_next_positions.append((words, list_index + 1, new_positions, new_board, score + word_score))
 
     # No possible positions for the next word, reutrn a score of 0 and an empty position list. 
     if(len(possible_next_positions) == 0):
         return(0, [])
     
-    # Destroy the grid we used for cross checking before we start more recursive calls.
-    # This way we don't hold on to all of them while we wait for a path to finish
-    del path_grid
     # Generate a list of possible word positions to choose the best from
     possible_paths = []
     for arg_tuple in possible_next_positions:
