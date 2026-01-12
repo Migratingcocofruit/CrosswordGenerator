@@ -7,10 +7,51 @@ from collections import deque
 # height: grid height
 # width: grid width
 def generate_puzzle(words, height, width):
-    board = np.empty((height, width), str)
-    best_positions = find_optimal(words, 0, [], board, 0)
+    sorted_words = sort_words(words)
+    best_positions = find_optimal(sorted_words, 0, [], height, width, 0)
     grid = build_grid(words, best_positions[1], height, width)
     return grid
+
+# Generates a list of puzzles using slightly different word orders
+# words: list of words
+# positions: list of the positions and orientations of each word
+# height: grid height
+# width: grid width
+def generate_puzzles(words, height, width, amount):
+    sorted_words = sort_words(words)
+    rng = np.random.default_rng()
+    best_positions_list = []
+    for i in range(0, amount):
+        current_words = sorted_words[:]
+        for j in range(0, len(current_words) - 1, 2):
+            # 30% chance to swap positions of 2 words
+            if rng.uniform(0, 1) > 0.7:
+                current_words[j] = sorted_words[j + 1]
+                current_words[j + 1] = sorted_words[j]
+        best_positions_list.append(find_optimal(current_words, 0, [], height, width, 0))
+
+    grids = [(best_positions[0], build_grid(words, best_positions[1], height, width)) for best_positions in best_positions_list]
+    return grids
+
+# Returns a list of words sorted in descending order by the number of common characters they have with the other words
+def sort_words(words):
+    tuple_list = []
+    for i, word in enumerate(words):
+        sum = 0
+        for j, other_word in enumerate(words):
+            if i != j:
+                for l in word:
+                    for l2 in other_word:
+                        if l == l2:
+                            sum += 1
+        index = 0
+        for word_tuple in tuple_list:
+            if word_tuple[0] >= sum:
+                index += 1
+        tuple_list.insert(index ,(sum, word))
+
+    return [tup[1] for tup in tuple_list]
+
 
 # Tries to find the best puzzle that can be made with the given list of words and grid sizes
 # Returns the positions of the starts of each of the given words in the same order as the word order
@@ -33,7 +74,7 @@ def find_optimal(words, list_index, positions, board, score):
                 # For every valid placement add it to a list with its score
                 word_score = can_place_word(words[list_index], (i, j, orientation), board, words)
                 if(word_score > 0 or (list_index == 0 and word_score > -1)):
-                    new_positions = positions[:]
+                    new_positions = positions.copy()
                     new_positions.append((i, j, orientation))
                     new_board = np.copy(board)
                     place_word(words[list_index], new_positions[-1], new_board)
@@ -87,7 +128,7 @@ def can_place_word(word, position, grid, words):
 
     for char in word:
         # Check that all characters in our path are the same as the ones we try to place
-        if((char != grid[row][column] and grid[row][column] != np.str_(''))):
+        if(char != grid[row][column] and grid[row][column] != np.str_('')):
             return -1
 
         # Check for crossovers
@@ -223,8 +264,10 @@ def show_board(board):
             line += character + "|"
         print(line)
     
-word_list = ["williams", "lana", "willow", "abba", "shakira", "zedd", "neyo", "jimi", "cascada", "tate"]
+word_list = ["coldplay", "chemical",  "reaction", "yellow", "elton", "hole", "space", "jupiter"]
 
-board = generate_puzzle(word_list, 10, 12)
+boards = generate_puzzles(word_list, 10, 12, 2)
 
-show_board(board)
+for board in boards:
+    show_board(board[1])
+    print("score: " + str(board[0]))
