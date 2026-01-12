@@ -8,8 +8,7 @@ from collections import deque
 # width: grid width
 def generate_puzzle(words, height, width):
     sorted_words = sort_words(words)
-    best_positions = find_optimal(sorted_words, 0, [], height, width, 0)
-    grid = build_grid(words, best_positions[1], height, width)
+    grid = find_optimal(sorted_words, 0, np.empty((height, width), str), 0)
     return grid
 
 # Generates a list of puzzles using slightly different word orders
@@ -20,7 +19,7 @@ def generate_puzzle(words, height, width):
 def generate_puzzles(words, height, width, amount):
     sorted_words = sort_words(words)
     rng = np.random.default_rng()
-    best_positions_list = []
+    grids = []
     for i in range(0, amount):
         current_words = sorted_words[:]
         for j in range(0, len(current_words) - 1, 2):
@@ -28,9 +27,8 @@ def generate_puzzles(words, height, width, amount):
             if rng.uniform(0, 1) > 0.7:
                 current_words[j] = sorted_words[j + 1]
                 current_words[j + 1] = sorted_words[j]
-        best_positions_list.append(find_optimal(current_words, 0, [], height, width, 0))
+        grids.append(find_optimal(current_words, 0, np.empty((height, width), str), 0))
 
-    grids = [(best_positions[0], build_grid(words, best_positions[1], height, width)) for best_positions in best_positions_list]
     return grids
 
 # Returns a list of words sorted in descending order by the number of common characters they have with the other words
@@ -60,38 +58,30 @@ def sort_words(words):
 # positions: list of tuples of the form (row, columm, is_vertical)
 # height: grid height
 # width: grid width
-def find_optimal(words, list_index, positions, board, score):
+def find_optimal(words, list_index, board, score):
     height = board.shape[0]
     width = board.shape[1]
     # If we placed all our words calculate the board score
     if(list_index >= len(words)):
-        return (score, positions)
+        return (score, board)
     # Step to all the possible positions a word can be in
-    possible_next_positions = []
+    possible_next_boards = []
     for orientation in (True, False):
         for i in range(0, height):
             for j in range(0, width):
+                new_board = np.copy(board)
                 # For every valid placement add it to a list with its score
-                word_score = can_place_word(words[list_index], (i, j, orientation), board, words)
+                word_score = try_place_word(words[list_index], (i, j, orientation), new_board, words)
                 if(word_score > 0 or (list_index == 0 and word_score > -1)):
-                    new_positions = positions.copy()
-                    new_positions.append((i, j, orientation))
-                    new_board = np.copy(board)
-                    place_word(words[list_index], new_positions[-1], new_board)
-                    possible_next_positions.append((words, list_index + 1, new_positions, new_board, score + word_score))
+                    possible_next_boards.append(find_optimal(words, list_index + 1, new_board, score + word_score))
 
     # No possible positions for the next word, reutrn a score of 0 and an empty position list. 
-    if(len(possible_next_positions) == 0):
+    if(len(possible_next_boards) == 0):
         return(0, [])
     
-    # Generate a list of possible word positions to choose the best from
-    possible_paths = []
-    for arg_tuple in possible_next_positions:
-        possible_paths.append(find_optimal(*arg_tuple))
-    
     # Return word position list with maximum score
-    best_positions = possible_paths[0]
-    for score_positions in possible_paths:
+    best_positions = possible_next_boards[0]
+    for score_positions in possible_next_boards:
         if score_positions[0] > best_positions[0]:
             best_positions = score_positions
 
@@ -105,7 +95,7 @@ def find_optimal(words, list_index, positions, board, score):
 # position: tuple of coordinates of the words first letter and its orientation
 # grid: the grid we place the word into
 # words: list of words in the puzzle(for crossover checks)
-def can_place_word(word, position, grid, words):
+def try_place_word(word, position, grid, words):
     score = 0
     # Check that we are within bounds
     if(position[2] and position[0] + len(word) > grid.shape[0]):
@@ -138,6 +128,7 @@ def can_place_word(word, position, grid, words):
         elif(crossover_stat == 0):
             return -1
 
+        grid[row][column] = char
         # Step ahead according to orientation true: vertical, false: horizonal
         if(position[2]):
             row += 1
