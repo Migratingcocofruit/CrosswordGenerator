@@ -22,9 +22,9 @@ def generate_puzzles(words, height, width, amount):
     grids = [find_optimal(sorted_words, 0, np.empty((height, width), str), 0)]
     for i in range(0, amount - 1):
         current_words = sorted_words[:]
-        for j in range(0, len(current_words) - 1, 2):
+        for j in range(0, len(current_words) - 1):
             # 30% chance to swap positions of 2 words
-            if rng.uniform(0, 1) > 0.7:
+            if rng.uniform(0, 1) > 0.6:
                 current_words[j] = sorted_words[j + 1]
                 current_words[j + 1] = sorted_words[j]
         grids.append(find_optimal(current_words, 0, np.empty((height, width), str), 0))
@@ -67,6 +67,12 @@ def find_optimal(words, list_index, board, score):
     # Step to all the possible positions a word can be in
     possible_next_boards = []
     for orientation in (True, False):
+        if(orientation):
+            height = min(board.shape[0] - len(words[list_index]) + 1, board.shape[0])
+            width = board.shape[1]
+        else:
+            height = board.shape[0]
+            width = min(board.shape[1] - len(words[list_index]) + 1, board.shape[1])
         for i in range(0, height):
             for j in range(0, width):
                 new_board = np.copy(board)
@@ -108,12 +114,12 @@ def try_place_word(word, position, grid, words):
 
     # Check for a clear space or border at the start and end
     if(position[2]):
-        if(row > 0 and grid[row - 1][column] != np.str_('') or
-           (row + len(word) < grid.shape[0] - 1 and grid[row + len(word)][column] != np.str_(''))):
+        if((row > 0 and grid[row - 1][column] != np.str_('')) or
+           (row + len(word) < grid.shape[0] and grid[row + len(word)][column] != np.str_(''))):
             return -1
     else:
-        if(column > 0 and grid[row][column - 1] != np.str_('') or
-            (column + len(word) < grid.shape[1] - 1 and grid[row][column + len(word)] != np.str_(''))):
+        if((column > 0 and grid[row][column - 1] != np.str_('')) or
+            (column + len(word) < grid.shape[1] and grid[row][column + len(word)] != np.str_(''))):
             return -1
 
     for char in word:
@@ -258,7 +264,9 @@ def show_board(board):
             line += character + "|"
         print(line)
     
-word_list = ["touchthesky", "fahrenheit", "aeroplane", "aceshigh", "tincan", "jiujitsu", "bird", "flyaway", "air"]
+word_list = ["jooooooojo", "zipperman", "theworld", "dio", "giorno"]
+
+print(sort_words(word_list))
 
 boards = generate_puzzles(word_list, 10, 12, 1)
 
