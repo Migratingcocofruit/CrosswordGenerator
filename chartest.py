@@ -1,4 +1,8 @@
-a = [1]
-b = a.append(2)
+def foo(*args):
+    print(bar(*args))
 
-print(b)
+def bar(i, j, k):
+    return i + j + k
+
+
+foo(1, 2, 3)
