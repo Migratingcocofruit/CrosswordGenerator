@@ -128,7 +128,7 @@ def find_optimal_threaded(words, list_index, board, score):
                     # For every valid placement add it to a list with its score
                     word_score = try_place_word(words[list_index], (i, j, orientation), new_board, words)
                     if(word_score > 0 or (list_index == 0 and word_score > -1)):
-                        worker_results.append(pool.apply_async(find_optimal_threaded, (words, list_index + 1, new_board, score + word_score)))
+                        worker_results.append(pool.apply_async(find_optimal, (words, list_index + 1, new_board, score + word_score)))
 
         # No possible positions for the next word, reutrn a score of 0 and an empty position list. 
         if(len(worker_results) == 0):
@@ -142,7 +142,9 @@ def find_optimal_threaded(words, list_index, board, score):
                 if result.ready():
                     possible_next_boards.append(result.get())
                     worker_results.remove(result)
-            
+
+        print(possible_next_boards)
+
         # Return word position list with maximum score
         best_positions = possible_next_boards[0]
         for score_positions in possible_next_boards:
