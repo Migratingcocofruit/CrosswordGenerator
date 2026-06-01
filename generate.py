@@ -318,7 +318,7 @@ def score_grid(grid):
             if((j > 0 and grid[i][j - 1] != np.str_('')) or
                (j < grid.shape[1] - 1 and grid[i][j + 1] != np.str_(''))):
                 cross_h = True
-            # If we both a horizontal and a vertical neighbour we are at a crossing point
+            # If we have both a horizontal and a vertical neighbour we are at a crossing point
             if(cross_h and cross_v):
                 score += 1
 
@@ -339,9 +339,7 @@ def show_board(board):
 
 if __name__ == '__main__':
 
-    pool = Pool(processes=8)
-
-    word_list = ["panther", "tiger", "lion", "monkeys", "impala", "whales", "spider", "bear", "barracuda", "gorrilaz"]
+    word_list = ["theripper", "murder", "bonnie", "clyde", "jailhouserock", "johnbrown", "breakingthelaw", "thief", "thekillers", "smoothcriminal", ""]
 
     print(sort_words(word_list))
 
