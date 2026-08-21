@@ -92,7 +92,7 @@ def find_optimal(words, list_index, board, score):
             for j in range(0, board.shape[1]):
                 # Try to place word if position is valid
                 if(board[i][j] != np.str_('')):
-                    index_list = [i for i, char in enumerate(words[list_index]) if char == board[i][j]]
+                    index_list = [index for index, char in enumerate(words[list_index]) if char == board[i][j]]
                     for word_index in index_list:
                         new_board = np.copy(board)
                         # For every valid placement add it to a list with its score
@@ -175,7 +175,7 @@ def find_optimal_threaded(words, list_index, board, score):
 # words: list of words in the puzzle(for crossover checks)
 def try_place_word(word, word_index, grid_position, grid, words):
     # Offset the placement by word offset
-    position = (grid_position[0] - word_index * grid_position[2] ^ 1, grid_position[1] - word_index * grid_position[2], grid_position[2])
+    position = (grid_position[0] - word_index * grid_position[2], grid_position[1] - (word_index * (grid_position[2] ^ 1)), grid_position[2])
     score = 0
     # Check that we are within bounds
     if(position[0] < 0 or position[1] < 0):
