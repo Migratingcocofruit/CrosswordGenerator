@@ -1,7 +1,12 @@
+import time
 import numpy as np
 from multiprocessing import Pool
 from collections import deque
 import os
+
+empty_time = 0
+copy_time = 0
+place_time = 0
 
 def worker_func(*args):
     print(f"Running on PID: {os.getpid()}")  # Each should be different
@@ -80,8 +85,9 @@ def sort_words(words):
 # height: grid height
 # width: grid width
 def find_optimal(words, list_index, board, score):
-    height = board.shape[0]
-    width = board.shape[1]
+    empty_time = 0
+    place_time = 0
+    copy_time = 0
     # If we placed all our words calculate the board score
     if(list_index >= len(words)):
         return (score, board)
@@ -91,14 +97,21 @@ def find_optimal(words, list_index, board, score):
         for i in range(0, board.shape[0]):
             for j in range(0, board.shape[1]):
                 # Try to place word if position is valid
+                empty_start = time.thread_time_ns()
                 if(board[i][j] != np.str_('')):
                     index_list = [index for index, char in enumerate(words[list_index]) if char == board[i][j]]
                     for word_index in index_list:
+                        copy_start = time.thread_time_ns()
                         new_board = np.copy(board)
+                        copy_time += time.thread_time_ns() - copy_start
                         # For every valid placement add it to a list with its score
+                        place_start = time.thread_time_ns()
                         word_score = try_place_word(words[list_index], word_index, (i, j, orientation), new_board, words)
+                        place_time += time.thread_time_ns() - place_start
                         if(word_score > 0 or (list_index == 0 and word_score > -1)):
                             possible_next_boards.append(find_optimal(words, list_index + 1, new_board, score + word_score))
+                else:
+                    empty_time += (time.thread_time_ns() - empty_start)
 
     # No possible positions for the next word, reutrn a score of 0 and an empty position list. 
     if(len(possible_next_boards) == 0):
@@ -152,9 +165,8 @@ def find_optimal_threaded(words, list_index, board, score):
 
         while(len(worker_results)):
             for result in worker_results:
-                if result.ready():
-                    possible_next_boards.append(result.get())
-                    worker_results.remove(result)
+                possible_next_boards.append(result.get())
+                worker_results.remove(result)
 
         # Return word position list with maximum score
         best_positions = possible_next_boards[0]
@@ -342,12 +354,18 @@ def show_board(board):
 
 if __name__ == '__main__':
 
-    word_list = ["takedown", "alternate", "generate"]
+    word_list = ["takedown", "alternate", "generate", "kill", "bill", "chill", "expeliarmos", "lizardwizard", "brazil", "china", "vietnam", "birmingham", "constantinopole"]
 
     print(sort_words(word_list))
 
-    boards = generate_puzzles_threaded(word_list, 14, 14, 1)
+    gen_time = time.thread_time_ns()
+
+    boards = generate_puzzles_threaded(word_list, 15, 15, 1)
+
+    gen_time = time.thread_time_ns() - gen_time
 
     for board in boards:
         show_board(board[1])
         print("score: " + str(board[0]))
+
+    print("generation time: " + str(gen_time) + "\nempty time: " + str(empty_time) + "\nboard copy time: "+ str(copy_time) + "\nplacement time: " + str(place_time))
