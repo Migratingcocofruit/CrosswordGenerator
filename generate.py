@@ -39,19 +39,21 @@ def generate_puzzles(words, height, width, amount):
     return grids
 
 def generate_puzzles_threaded(words, height, width, amount):
-    sorted_words = sort_words(words)
-    rng = np.random.default_rng()
-    grids = [find_optimal_threaded(sorted_words, 0, np.empty((height, width), str), 0)]
-    for i in range(0, amount - 1):
-        current_words = sorted_words[:]
-        for j in range(0, len(current_words) - 1):
-            # 30% chance to swap positions of 2 words
-            if rng.uniform(0, 1) > 0.6:
-                current_words[j] = sorted_words[j + 1]
-                current_words[j + 1] = sorted_words[j]
-        grids.append(find_optimal_threaded(current_words, 0, np.empty((height, width), str), 0))
+    with Pool(processes = 16) as pool:
+        sorted_words = sort_words(words)
+        rng = np.random.default_rng()
+        grids = [find_optimal_threaded(sorted_words, 0, np.empty((height, width), str), 0, pool)]
+        for i in range(0, amount - 1):
+            current_words = sorted_words[:]
+            for j in range(0, len(current_words) - 1):
+                # 30% chance to swap positions of 2 adjacent words
+                if (rng.uniform(0, 1) > 0.6 and j < len(current_words) - 1):
+                    current_words[j] = sorted_words[j + 1]
+                    current_words[j + 1] = sorted_words[j]
+                    j += 1
+            grids.append(find_optimal_threaded(current_words, 0, np.empty((height, width), str), 0, pool))
 
-    return grids
+        return grids
 
 # Returns a list of words sorted in descending order by the number of common characters they have with the other words
 def sort_words(words):
@@ -80,8 +82,6 @@ def sort_words(words):
 # height: grid height
 # width: grid width
 def find_optimal(words, list_index, board, score):
-
-
     # If we placed all our words calculate the board score
     if(list_index >= len(words)):
         return (score, board)
@@ -119,48 +119,51 @@ def find_optimal(words, list_index, board, score):
 # positions: list of tuples of the form (row, columm, is_vertical)
 # height: grid height
 # width: grid width
-def find_optimal_threaded(words, list_index, board, score):
-    with Pool(processes=16) as pool:
-        height = board.shape[0]
-        width = board.shape[1]
-        # If we placed all our words calculate the board score
-        if(list_index >= len(words)):
-            return (score, board)
-        # Step to all the possible positions a word can be in
-        worker_results = []
-        for orientation in (True, False):
-            if(orientation):
-                height = min(board.shape[0] - len(words[list_index]) + 1, board.shape[0])
-                width = board.shape[1]
-            else:
-                height = board.shape[0]
-                width = min(board.shape[1] - len(words[list_index]) + 1, board.shape[1])
-            for i in range(0, height):
-                for j in range(0, width):
-                    new_board = np.copy(board)
-                    # For every valid placement add it to a list with its score
-                    word_score = try_place_word(words[list_index], 0, (i, j, orientation), new_board, words)
-                    if(word_score > 0 or (list_index == 0 and word_score > -1)):
-                        worker_results.append(pool.apply_async(find_optimal, (words, list_index + 1, new_board, score + word_score)))
+def find_optimal_threaded(words, list_index, board, score, pool):
+    print("Creating board with word list:\n" + str(words))
+    thread_creation_time = time.process_time()
+    #with Pool(processes = 16) as pool:
+    height = board.shape[0]
+    width = board.shape[1]
+    # If we placed all our words calculate the board score
+    if(list_index >= len(words)):
+        return (score, board)
+    # Step to all the possible positions a word can be in
+    worker_results = []
+    for orientation in (True, False):
+        if(orientation):
+            height = min(board.shape[0] - len(words[list_index]) + 1, board.shape[0])
+            width = board.shape[1]
+        else:
+            height = board.shape[0]
+            width = min(board.shape[1] - len(words[list_index]) + 1, board.shape[1])
+        for i in range(0, height):
+            for j in range(0, width):
+                new_board = np.copy(board)
+                # For every valid placement add it to a list with its score
+                word_score = try_place_word(words[list_index], 0, (i, j, orientation), new_board, words)
+                if(word_score > 0 or (list_index == 0 and word_score > -1)):
+                    worker_results.append(pool.apply_async(find_optimal, (words, list_index + 1, new_board, score + word_score)))
 
-        # No possible positions for the next word, reutrn a score of 0 and an empty position list. 
-        if(len(worker_results) == 0):
-            return(0, [])
+    print("assigned work in: " + str(time.process_time() - thread_creation_time))
+    # No possible positions for the next word, reutrn a score of 0 and an empty position list. 
+    if(len(worker_results) == 0):
+        return(0, [])
 
 
-        possible_next_boards = []
+    possible_next_boards = []
 
-        for result in worker_results:
-            possible_next_boards.append(result.get())
-            worker_results.remove(result)
+    for result in worker_results:
+        possible_next_boards.append(result.get())
+        worker_results.remove(result)
 
-        # Return word position list with maximum score
-        best_positions = possible_next_boards[0]
-        for score_positions in possible_next_boards:
-            if score_positions[0] > best_positions[0]:
-                best_positions = score_positions
+    # Return word position list with maximum score
+    best_positions = possible_next_boards[0]
+    for score_positions in possible_next_boards:
+        if score_positions[0] > best_positions[0]:
+            best_positions = score_positions
 
-        return best_positions
+    return best_positions
 
 
 
@@ -339,15 +342,15 @@ def show_board(board):
         print(line)
 
 if __name__ == '__main__':
-
-    word_list = ["takedown", "alternate", "generate", "kill", "bill", "chill", "expeliarmos", "lizardwizard", "brazil", "china", "vietnam", "birmingham", "constantinopole"]
-
-    print(sort_words(word_list))
-
-    gen_time = time.time()
     main_thread_time = time.thread_time()
 
-    boards = generate_puzzles_threaded(word_list, 15, 15, 1)
+    word_list = ["youwashock", "thunderstruck", "lightning", "power", "daftpunk", "frankzappa", "imaginedragons", "ride", "thunderbolt", "electricfeel", "lovebuzz", "watts"]
+
+    print(str(sort_words(word_list)) + "\n")
+
+    gen_time = time.time()
+
+    boards = generate_puzzles_threaded(word_list, 15, 15, 2)
 
     gen_time = time.time() - gen_time
     main_thread_time = time.thread_time() - main_thread_time
