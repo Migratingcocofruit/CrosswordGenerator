@@ -25,34 +25,19 @@ def generate_puzzle(words, height, width):
 # width: grid width
 def generate_puzzles(words, height, width, amount):
     sorted_words = sort_words(words)
-    rng = np.random.default_rng()
     grids = [find_optimal(sorted_words, 0, np.empty((height, width), str), 0)]
     for i in range(0, amount - 1):
-        current_words = sorted_words[:]
-        for j in range(0, len(current_words) - 1):
-            # 30% chance to swap positions of 2 words
-            if rng.uniform(0, 1) > 0.6:
-                current_words[j] = sorted_words[j + 1]
-                current_words[j + 1] = sorted_words[j]
-        grids.append(find_optimal(current_words, 0, np.empty((height, width), str), 0))
-
+        scrambled_words = scramble_words(sorted_words)
+        grids.append(find_optimal(scrambled_words, 0, np.empty((height, width), str), 0))
     return grids
 
 def generate_puzzles_threaded(words, height, width, amount):
     with Pool(processes = 16) as pool:
         sorted_words = sort_words(words)
-        rng = np.random.default_rng()
         grids = [find_optimal_threaded(sorted_words, 0, np.empty((height, width), str), 0, pool)]
         for i in range(0, amount - 1):
-            current_words = sorted_words[:]
-            for j in range(0, len(current_words) - 1):
-                # 30% chance to swap positions of 2 adjacent words
-                if (rng.uniform(0, 1) > 0.6 and j < len(current_words) - 1):
-                    current_words[j] = sorted_words[j + 1]
-                    current_words[j + 1] = sorted_words[j]
-                    j += 1
-            grids.append(find_optimal_threaded(current_words, 0, np.empty((height, width), str), 0, pool))
-
+            scrambled_words = scramble_words(sorted_words)
+            grids.append(find_optimal_threaded(scrambled_words, 0, np.empty((height, width), str), 0, pool))
         return grids
 
 # Returns a list of words sorted in descending order by the number of common characters they have with the other words
@@ -73,6 +58,20 @@ def sort_words(words):
         tuple_list.insert(index ,(sum, word))
 
     return [tup[1] for tup in tuple_list]
+
+# Returns a scrambles word list
+def scramble_words(words):
+    rng = np.random.default_rng()
+    scrambled_words = words[:]
+    j = 0
+    while(j < len(scrambled_words)):
+        # 30% chance to swap positions of 2 adjacent words
+        if (rng.uniform(0, 1) > 0.6 and j < len(scrambled_words) - 1):
+            scrambled_words[j] = words[j + 1]
+            scrambled_words[j + 1] = words[j]
+            j += 1
+        j += 1
+    return scrambled_words
 
 # Tries to find the best puzzle that can be made with the given list of words and grid sizes
 # Returns the positions of the starts of each of the given words in the same order as the word order
@@ -344,13 +343,13 @@ def show_board(board):
 if __name__ == '__main__':
     main_thread_time = time.thread_time()
 
-    word_list = ["youwashock", "thunderstruck", "lightning", "power", "daftpunk", "frankzappa", "imaginedragons", "ride", "thunderbolt", "electricfeel", "lovebuzz", "watts"]
+    word_list = ["ibiza", "egyptian", "poland", "paris", "newyork", "scotland", "westvirginia", "africa", "pompeii", "georgia", "japan", "detroit", "jerusalem", "underthesea", "vietnam", "landdownunder"]
 
     print(str(sort_words(word_list)) + "\n")
 
     gen_time = time.time()
 
-    boards = generate_puzzles_threaded(word_list, 15, 15, 2)
+    boards = generate_puzzles_threaded(word_list, 15, 15, 1)
 
     gen_time = time.time() - gen_time
     main_thread_time = time.thread_time() - main_thread_time
