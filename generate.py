@@ -343,13 +343,13 @@ def show_board(board):
 if __name__ == '__main__':
     main_thread_time = time.thread_time()
 
-    word_list = ["ibiza", "egyptian", "poland", "paris", "newyork", "scotland", "westvirginia", "africa", "pompeii", "georgia", "japan", "detroit", "jerusalem", "underthesea", "vietnam", "landdownunder"]
+    word_list = [""]
 
     print(str(sort_words(word_list)) + "\n")
 
     gen_time = time.time()
 
-    boards = generate_puzzles_threaded(word_list, 15, 15, 1)
+    boards = generate_puzzles_threaded(word_list, 15, 15, 3)
 
     gen_time = time.time() - gen_time
     main_thread_time = time.thread_time() - main_thread_time
