@@ -2,7 +2,7 @@
 
 int main()
 {
-    int len = 8, width = 8;
+    int len = 15, width = 15;
     
     int size = len * width * 2;
 
