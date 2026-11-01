@@ -1,11 +1,15 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
-#include <constants.h>
+#include <memory.h>
+#include "constants.h"
 
 // Read words from file into buffer
-void read_words(char* buff);
+void read_words(char* buff, int size);
 // Count words in word list for array size
-int count_words(char* buff);
+int count_words(char* buff, int size);
+// Splits and allocates the word array
+void split_words(char** words, char* buff, int buff_size, int wordlen);
 // Returns number of common letters between words. Multiple instances count
 int common_letters(char* word1, char* word2);
 // Sorts the words in the word list such that the sum of common words between each pair of words is maximal

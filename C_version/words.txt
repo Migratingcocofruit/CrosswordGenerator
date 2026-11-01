@@ -1,1 +1,1 @@
-elephant,machine,star,diamond
+machine,jerk,star,electric,diamond,diner
