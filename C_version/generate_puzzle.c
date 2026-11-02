@@ -266,3 +266,8 @@ void print_board(struct Generation_Result* res)
     }
     printf("score: %d\n", res->crossovers);
 }
+
+struct Placement_List* copy_placement_list()
+{
+    
+}

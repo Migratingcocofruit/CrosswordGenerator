@@ -47,3 +47,7 @@ struct Generation_Result* singlethread_puzzle_wrapper();
 struct Generation_Result* generate_result(struct Placement_List* place_list);
 // prints a given board
 void print_board(struct Generation_Result* res);
+//
+struct Placement_List* copy_placement_list(struct Placement_List* placement);
+// 
+struct Generation_Result* create_puzzle_multithread(int word_index, struct Placement_List* place_list);
