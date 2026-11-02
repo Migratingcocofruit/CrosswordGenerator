@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include <pthread.h>
 #include "puzzle_globals.h"
 
 #define in_range(a, b, c) ((b) <= (a)) && ((a) <= (c))
@@ -22,32 +23,35 @@ struct Placement_Node
     // amount of crosovers in placements up to here
     int crossovers;
 };
+typedef struct Placement_Node placement_node;
 struct Placement_List
 {
     struct Placement_Node* head;
     struct Placement_Node* tail;
 };
+typedef struct Placement_List placement_list;
 
 struct Generation_Result
 {
     int crossovers;
     char** board;
 };
+typedef struct Generation_Result gen_result;
 
-int add_word(int next_word_i, int next_word_place, int attachment_place, struct Placement_Node* attachment ,struct Placement_List* place_list);
+int add_word(int next_word_i, int next_word_place, int attachment_place, placement_node* attachment ,placement_list* place_list);
 
-void remove_tail(struct Placement_List* place_list);
+void remove_tail(placement_list* place_list);
 // Try to place a word in the list. Retunrs number of crossovers if successful and -1 otherwise.
-int place_word(struct Placement_Node* new_word, struct Placement_List* place_list);
+int place_word(placement_node* new_word, placement_list* place_list);
 // Generate a board with maximal crossovers(single threaded)
-struct Generation_Result* create_puzzle_singlethread(int word_index, struct Placement_List* place_list);
+gen_result* create_puzzle_singlethread(int word_index, placement_list* place_list);
 // Wrapper for create_puzzle_singlethread
-struct Generation_Result* singlethread_puzzle_wrapper();
+gen_result* singlethread_puzzle_wrapper();
 // Generate a result struct from a word placement list
-struct Generation_Result* generate_result(struct Placement_List* place_list);
+gen_result* generate_result(placement_list* place_list);
 // prints a given board
-void print_board(struct Generation_Result* res);
+void print_board(gen_result* res);
 //
-struct Placement_List* copy_placement_list(struct Placement_List* placement);
+placement_list* copy_placement_list(placement_list* placement);
 // 
-struct Generation_Result* create_puzzle_multithread(int word_index, struct Placement_List* place_list);
+gen_result* create_puzzle_multithread(int word_index, placement_list* place_list);

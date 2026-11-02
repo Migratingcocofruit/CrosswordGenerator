@@ -6,7 +6,7 @@ int main()
     
     int size = height * width * 2;
 
-    word_length = max(height, width) + 1;
+    word_length = fmax(height, width) + 1;
 
     char* buff = (char*)malloc(size * sizeof(char));
 

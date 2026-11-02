@@ -1,8 +1,8 @@
 #include "generate_puzzle.h"
 
-int add_word(int next_word_i, int next_word_place, int attachment_place, struct Placement_Node* attachment, struct Placement_List* place_list)
+int add_word(int next_word_i, int next_word_place, int attachment_place, placement_node* attachment, placement_list* place_list)
 {
-    struct Placement_Node* placement = (struct Placement_Node*)malloc(sizeof(struct Placement_Node));
+    placement_node* placement = (placement_node*)malloc(sizeof(placement_node));
 
     bool vertical = attachment->coords[1] == attachment->coords[3];
 
@@ -30,11 +30,11 @@ int add_word(int next_word_i, int next_word_place, int attachment_place, struct 
     {
         if(i < 2)
         {
-            placement->edge_coords[i] = min(place_list->tail->edge_coords[i], placement->coords[i]);
+            placement->edge_coords[i] = fmin(place_list->tail->edge_coords[i], placement->coords[i]);
         }
         else
         {
-            placement->edge_coords[i] = max(place_list->tail->edge_coords[i], placement->coords[i]);
+            placement->edge_coords[i] = fmax(place_list->tail->edge_coords[i], placement->coords[i]);
         }
     }
 
@@ -66,7 +66,7 @@ int add_word(int next_word_i, int next_word_place, int attachment_place, struct 
     return ret_val;
 }
 
-place_word(struct Placement_Node* new_word, struct Placement_List* place_list)
+int place_word(placement_node* new_word, placement_list* place_list)
 {
     int crossovers = 0, line_start = 0, line_end = 2, cross_start = 1, cross_end = 3;
     bool vertical = new_word->coords[0] == new_word->coords[2];
@@ -80,7 +80,7 @@ place_word(struct Placement_Node* new_word, struct Placement_List* place_list)
     }
 
     // check if any word interferes with us
-    struct Placement_Node* current = place_list->tail;
+    placement_node* current = place_list->tail;
     while(current != NULL)
     {
         // There is a word starting ahead or ending behind where we are placing, or if we overlap or are adjacent to another word in the same orientation Abort.
@@ -118,7 +118,7 @@ place_word(struct Placement_Node* new_word, struct Placement_List* place_list)
     return crossovers;
 }
 
-void remove_tail(struct Placement_List* place_list)
+void remove_tail(placement_list* place_list)
 {
     place_list->tail = place_list->tail->previous;
     free(place_list->tail->next);
@@ -126,13 +126,13 @@ void remove_tail(struct Placement_List* place_list)
 }
 
 // Converts a word placement list into a result struct
-struct Generation_Result* generate_result(struct Placement_List* place_list)
+gen_result* generate_result(placement_list* place_list)
 {
     bool vertical;
-    struct Placement_Node* curr_wnode = place_list->tail;
+    placement_node* curr_wnode = place_list->tail;
     int min_x = curr_wnode->edge_coords[0], min_y = curr_wnode->edge_coords[1];
     // Allocate struct
-    struct Generation_Result* res = (struct Generation_Result*)malloc(sizeof(struct Generation_Result));
+    gen_result* res = (gen_result*)malloc(sizeof(gen_result));
     res->board = (char**)malloc(sizeof(char*) * width);
     for(int i = 0; i < width; i++)
     {
@@ -165,16 +165,16 @@ struct Generation_Result* generate_result(struct Placement_List* place_list)
     return res;
 }
 
-struct Generation_Result* create_puzzle_singlethread(int word_index, struct Placement_List* place_list)
+gen_result* create_puzzle_singlethread(int word_index, placement_list* place_list)
 {
     if(word_index >= word_count)
     {
         return generate_result(place_list);
     }
 
-    struct Generation_Result* max_board = NULL, *curr_board = NULL;
+    gen_result* max_board = NULL, *curr_board = NULL;
 
-    struct Placement_Node* curr_word = place_list->tail;
+    placement_node* curr_word = place_list->tail;
 
     while(curr_word)
     {
@@ -202,16 +202,16 @@ struct Generation_Result* create_puzzle_singlethread(int word_index, struct Plac
     return max_board;
 }
 
-struct Generation_Result* singlethread_puzzle_wrapper()
+gen_result* singlethread_puzzle_wrapper()
 {
-    struct Generation_Result* res_h = NULL;
-    struct Generation_Result* res_v = NULL;
+    gen_result* res_h = NULL;
+    gen_result* res_v = NULL;
 
-    struct Placement_List* place_list_h = (struct Placement_List*)malloc(sizeof(struct Placement_List));
-    struct Placement_List* place_list_v = (struct Placement_List*)malloc(sizeof(struct Placement_List));
+    placement_list* place_list_h = (placement_list*)malloc(sizeof(placement_list));
+    placement_list* place_list_v = (placement_list*)malloc(sizeof(placement_list));
 
-    place_list_h->tail = (struct Placement_Node*)malloc(sizeof(struct Placement_Node));
-    place_list_v->tail = (struct Placement_Node*)malloc(sizeof(struct Placement_Node));
+    place_list_h->tail = (placement_node*)malloc(sizeof(placement_node));
+    place_list_v->tail = (placement_node*)malloc(sizeof(placement_node));
 
     place_list_h->head = place_list_h->tail;
     place_list_v->head = place_list_v->tail;
@@ -254,7 +254,7 @@ struct Generation_Result* singlethread_puzzle_wrapper()
     return res_v;
 }
 
-void print_board(struct Generation_Result* res)
+void print_board(gen_result* res)
 {
     for(int i = 0; i < width; i++)
     {
@@ -267,7 +267,38 @@ void print_board(struct Generation_Result* res)
     printf("score: %d\n", res->crossovers);
 }
 
-struct Placement_List* copy_placement_list()
+placement_list* copy_placement_list(placement_list* placement)
 {
-    
+    placement_list* new_list = (placement_list*)malloc(sizeof(placement_list));
+    new_list->head = NULL;
+    new_list->tail = NULL;
+    if(placement->head == NULL)
+    {
+        return new_list;
+    }
+    placement_node* current = placement->head;
+    placement_node* new_node = NULL;
+    while(current)
+    {
+        new_node = (placement_node*)malloc(sizeof(placement_node));
+        memcpy(new_node->coords, current->coords, 4);
+        memcpy(new_node->edge_coords, current->edge_coords, 4);
+        new_node->word_index = current->word_index;
+        new_node->crossovers = current->crossovers;
+        new_node->next = NULL;
+        if(new_list->tail)
+        {
+            new_list->tail->next = new_node;
+            new_node->previous = new_list->tail;
+        }
+        else
+        {
+            new_list->tail = new_node;
+            new_list->head = new_node;
+        }
+        new_list->tail = new_node;
+
+        current = current->next;
+    }
+    return new_list;
 }
