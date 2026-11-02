@@ -1,1 +1,0 @@
-#define FILE_PATH "E:\\Programs\\Repos\\CrosswordGenerator\\C_version\\words.txt"

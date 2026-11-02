@@ -2,7 +2,8 @@
 #include <stdlib.h>
 #include <math.h>
 #include <memory.h>
-#include "constants.h"
+
+#define FILE_PATH "E:\\Programs\\Repos\\CrosswordGenerator\\C_version\\words.txt"
 
 // Read words from file into buffer
 void read_words(char* buff, int size);
