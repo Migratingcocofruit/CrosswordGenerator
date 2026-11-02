@@ -38,6 +38,21 @@ struct Generation_Result
 };
 typedef struct Generation_Result gen_result;
 
+struct Thread_List
+{
+    struct Thread_List* next;
+    pthread_t thread;
+};
+typedef struct Thread_List threads;
+
+struct Result_List
+{
+    struct Result_List* next;
+    placement_list* place;
+    gen_result* res;
+};
+typedef struct Result_List results;
+
 int add_word(int next_word_i, int next_word_place, int attachment_place, placement_node* attachment ,placement_list* place_list);
 
 void remove_tail(placement_list* place_list);
@@ -46,7 +61,7 @@ int place_word(placement_node* new_word, placement_list* place_list);
 // Generate a board with maximal crossovers(single threaded)
 gen_result* create_puzzle_singlethread(int word_index, placement_list* place_list);
 // Wrapper for create_puzzle_singlethread
-gen_result* singlethread_puzzle_wrapper();
+gen_result* puzzle_gen_wrapper(bool mt);
 // Generate a result struct from a word placement list
 gen_result* generate_result(placement_list* place_list);
 // prints a given board
@@ -55,3 +70,4 @@ void print_board(gen_result* res);
 placement_list* copy_placement_list(placement_list* placement);
 // 
 gen_result* create_puzzle_multithread(int word_index, placement_list* place_list);
+void* multi_single_wrapper(void* place_list);

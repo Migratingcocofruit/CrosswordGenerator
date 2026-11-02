@@ -202,7 +202,7 @@ gen_result* create_puzzle_singlethread(int word_index, placement_list* place_lis
     return max_board;
 }
 
-gen_result* singlethread_puzzle_wrapper()
+gen_result* puzzle_gen_wrapper(bool mt)
 {
     gen_result* res_h = NULL;
     gen_result* res_v = NULL;
@@ -242,8 +242,16 @@ gen_result* singlethread_puzzle_wrapper()
         place_list_h->tail->edge_coords[i] = place_list_h->tail->coords[i];
     }
 
-    res_h = create_puzzle_singlethread(1, place_list_h);
-    res_v = create_puzzle_singlethread(1, place_list_v);
+    if(mt)
+    {
+        res_h = create_puzzle_multithread(1, place_list_h);
+        res_v = create_puzzle_multithread(1, place_list_v);
+    }
+    else
+    {
+        res_h = create_puzzle_singlethread(1, place_list_h);
+        res_v = create_puzzle_singlethread(1, place_list_v);
+    }
 
     // TODO: destroy lists
 
@@ -281,24 +289,101 @@ placement_list* copy_placement_list(placement_list* placement)
     while(current)
     {
         new_node = (placement_node*)malloc(sizeof(placement_node));
-        memcpy(new_node->coords, current->coords, 4);
-        memcpy(new_node->edge_coords, current->edge_coords, 4);
+        memcpy(new_node->coords, current->coords, 4 * sizeof(int));
+        memcpy(new_node->edge_coords, current->edge_coords, 4 * sizeof(int));
         new_node->word_index = current->word_index;
         new_node->crossovers = current->crossovers;
         new_node->next = NULL;
+        new_node->previous = NULL;
+
         if(new_list->tail)
         {
             new_list->tail->next = new_node;
             new_node->previous = new_list->tail;
         }
         else
-        {
-            new_list->tail = new_node;
+        {  
             new_list->head = new_node;
         }
-        new_list->tail = new_node;
 
+        new_list->tail = new_node;
         current = current->next;
     }
     return new_list;
+}
+
+gen_result* create_puzzle_multithread(int word_index, placement_list* place_list)
+{
+    if(word_index >= word_count)
+    {
+        return generate_result(place_list);
+    }
+
+    threads* thread_head = (threads*)malloc(sizeof(threads));
+    threads* thread_current = thread_head;
+    thread_head->next = NULL;
+
+    gen_result* max_board = NULL, *curr_board = NULL;
+
+    results* res_list, *curr_res;
+    res_list = (results*)malloc(sizeof(results));
+    curr_res = res_list;
+    res_list->next = NULL;
+
+    placement_node* curr_word = place_list->tail;
+
+    while(curr_word)
+    {
+        for(int i = 0; i < strlen(words[word_index]); i++)
+        {
+            for(int j = 0; j < strlen(words[curr_word->word_index]); j++)
+            {
+                if(words[word_index][i] == words[curr_word->word_index][j])
+                {
+                    if(add_word(word_index, i, j, curr_word, place_list) > 0)
+                    {
+                        curr_res->place = copy_placement_list(place_list);
+                        curr_res->res = NULL;
+                        pthread_create(&(thread_current->thread), NULL, multi_single_wrapper, (void*)curr_res);
+                        thread_current->next = (threads*)malloc(sizeof(threads));
+                        thread_current = thread_current->next;
+                        thread_current->next = NULL;
+                        curr_res->next = (results*)malloc(sizeof(results));
+                        curr_res = curr_res->next;
+                        curr_res->next = NULL;
+                        curr_res->res = NULL;
+                        curr_res->place = NULL;
+                    }
+                    remove_tail(place_list);
+                }
+            }
+        }
+        curr_word = curr_word->previous;
+    }
+
+    curr_res = res_list;
+    thread_current = thread_head;
+    // join threads and pick the maximum result
+    while(thread_current)
+    {
+        pthread_join(thread_current->thread, NULL);
+        thread_current = thread_current->next;
+    }
+    while(curr_res)
+    {
+        if(curr_res && curr_res->res && (!max_board || max_board->crossovers < curr_res->res->crossovers))
+        {
+            max_board = curr_res->res;
+        }
+
+        curr_res = curr_res->next;
+    }
+
+    return max_board;
+}
+
+void* multi_single_wrapper(void* curr)
+{
+    results* curr_res = curr;
+    curr_res->res = create_puzzle_singlethread(2, curr_res->place);
 }
