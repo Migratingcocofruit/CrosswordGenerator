@@ -4,7 +4,7 @@
 #define DEFAULT_HEIGHT 15
 
 // globals
-extern char** word_list, **words_longest_first, **words_heaviest_path, **words_commons, **words;
+extern char** word_list, **words_longest_first, **words_heaviest_path, **words_commons, **words, ***order_types;
 extern int word_count, width, height, word_length;
 
 #endif

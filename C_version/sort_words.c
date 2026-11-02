@@ -163,7 +163,7 @@ void sort_words()
         for(int i = 0; i < word_count; i++)
         {
             // Place elements in their new place
-            memcpy(words_heaviest_path[i], word_list[curr_vertex], word_length);
+            memcpy(order_types[0][i], word_list[curr_vertex], word_length);
             // Walk the path
             last_vertex = curr_vertex;
             curr_vertex = path_table[curr_mask][curr_vertex][2];
@@ -184,7 +184,7 @@ void sort_words()
         for(int i = 0; i < word_count; i++)
         {
             // Place elements in their new place
-            memcpy(words_longest_first[i], word_list[curr_vertex], word_length);
+            memcpy(order_types[1][i], word_list[curr_vertex], word_length);
             // Walk the path
             last_vertex = curr_vertex;
             curr_vertex = path_table[curr_mask][curr_vertex][2];
@@ -233,7 +233,7 @@ void sort_words_commons(int** adjacency)
             }
         }
         commons[max_ind] = 0;
-        memcpy(words_commons[i], word_list[max_ind], word_length);
+        memcpy(order_types[2][i], word_list[max_ind], word_length);
     }
     free(commons);
 }
