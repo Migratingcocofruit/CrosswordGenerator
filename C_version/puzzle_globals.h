@@ -4,8 +4,7 @@
 #define DEFAULT_HEIGHT 15
 
 // globals
-extern int word_count, width, height;
-extern int word_length;
 extern char** words;
+extern int word_count, width, height, word_length;
 
 #endif

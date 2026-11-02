@@ -13,9 +13,9 @@ void read_words(char* buff, int size)
     fclose(fp);
 }
 
-int count_words(char* buff, int size)
+void count_words(char* buff, int size)
 {
-    int word_count = 1;
+    word_count = 1;
     for(int i = 0; i < size; i++)
     {
         if(buff[i] == ',')
@@ -23,10 +23,10 @@ int count_words(char* buff, int size)
             word_count++;
         }
     }
-    return word_count;
+    return;
 }
 
-void split_words(char** words, char* buff, int buff_size, int wordlen)
+void split_words(char* buff, int buff_size)
 {
     for(int i = 0, j = 0, k = 0, last = 0; i < buff_size && buff[i-1] != '\0'; i++)
     {
@@ -71,7 +71,7 @@ int common_letters(char* word1, char* word2)
     return count;
 }
 
-void sort_words(char** words, int word_length, int word_count)
+void sort_words()
 {
     // Create weighted adjacency matrix for edges
     int** adjacency = (int**)malloc(word_count * sizeof(int*));

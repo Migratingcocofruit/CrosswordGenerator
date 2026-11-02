@@ -2,11 +2,11 @@
 
 int main()
 {
-    int len = 15, width = 15;
+    width = DEFAULT_WIDTH, height = DEFAULT_HEIGHT;
     
-    int size = len * width * 2;
+    int size = height * width * 2;
 
-    int wordlen = max(len, width) + 1;
+    word_length = max(height, width) + 1;
 
     char* buff = (char*)malloc(size * sizeof(char));
 
@@ -14,17 +14,17 @@ int main()
 
     printf("%s\n", buff);
 
-    int word_count = count_words(buff, size);
+    count_words(buff, size);
 
     printf("word count: %d\n", word_count);
 
-    char** words = (char**)malloc(word_count * sizeof(char**));
+    words = (char**)malloc(word_count * sizeof(char**));
     for(int i = 0; i < word_count ; i++)
     {
-        words[i] = (char*)malloc(wordlen * sizeof(char));
+        words[i] = (char*)malloc(word_length * sizeof(char));
     }
 
-    split_words(words, buff, size, wordlen);
+    split_words(buff, size);
 
     for(int i = 0; i< word_count; i++)
     {
@@ -33,7 +33,7 @@ int main()
 
     printf("\n");
     
-    sort_words(words, wordlen, word_count);
+    sort_words(words);
 
     for(int i = 0; i< word_count; i++)
     {
