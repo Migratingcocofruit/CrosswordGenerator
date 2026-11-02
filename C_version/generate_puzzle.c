@@ -14,14 +14,14 @@ int add_word(int next_word_i, int next_word_place, int tail_place ,struct Placem
         placement->coords[0] = place_list->tail->coords[0] + tail_place;
         placement->coords[1] = place_list->tail->coords[1] - next_word_place;
         placement->coords[2] = placement->coords[0];
-        placement->coords[3] = placement->coords[1] + strlen(words[next_word_i]) - 1;
+        placement->coords[3] = placement->coords[1] + (int)strlen(words[next_word_i]) - 1;
     }
     else
     {
         
         placement->coords[0] = place_list->tail->coords[0] - next_word_place;
         placement->coords[1] = place_list->tail->coords[1] + tail_place;
-        placement->coords[2] = placement->coords[0] + strlen(words[next_word_i]) - 1;
+        placement->coords[2] = placement->coords[0] + (int)strlen(words[next_word_i]) - 1;
         placement->coords[3] = placement->coords[1];
     }
 
@@ -71,7 +71,7 @@ place_word(struct Placement_Node* new_word, int next_word_place, int tail_place,
     int crossovers = 0;
     bool vertical = new_word->coords[0] == new_word->coords[2];
     // check if any word interferes with us
-    struct Placement_Node* current = place_list->head;
+    struct Placement_Node* current = place_list->tail;
     while(current != NULL)
     {
         // There is a word directly ahead or behind where we are placing, or if we overlap another word in the same orientation Abort.
@@ -130,9 +130,9 @@ place_word(struct Placement_Node* new_word, int next_word_place, int tail_place,
                 }
             }
         }
-
-        return crossovers;
+        current = current->previous;
     }
+    return crossovers;
 }
 
 void remove_tail(struct Placement_List* place_list)
@@ -190,8 +190,7 @@ struct Generation_Result* create_puzzle_singlethread(int word_index, struct Plac
         return generate_result(place_list);
     }
 
-    struct Generation_Result* max_board, *curr_board;
-    max_board->crossovers = 0;
+    struct Generation_Result* max_board = NULL, *curr_board = NULL;
 
     for(int i = 0; i < strlen(words[word_index]); i++)
     {
@@ -201,8 +200,8 @@ struct Generation_Result* create_puzzle_singlethread(int word_index, struct Plac
             {
                 if(add_word(word_index, i, j, place_list) > 0)
                 {
-                    curr_board = (word_index + 1, place_list);
-                    if(curr_board->crossovers > max_board->crossovers)
+                    curr_board = create_puzzle_singlethread(word_index + 1, place_list);
+                    if(max_board == NULL || curr_board->crossovers > max_board->crossovers)
                     {
                         free(max_board);
                         max_board = curr_board;
@@ -214,6 +213,58 @@ struct Generation_Result* create_puzzle_singlethread(int word_index, struct Plac
     }
 
     return max_board;
+}
+
+struct Generation_Result* singlethread_puzzle_wrapper()
+{
+    struct Generation_Result* res_h = NULL;
+    struct Generation_Result* res_v = NULL;
+
+    struct Placement_List* place_list_h = (struct Placement_List*)malloc(sizeof(struct Placement_List));
+    struct Placement_List* place_list_v = (struct Placement_List*)malloc(sizeof(struct Placement_List));
+
+    place_list_h->tail = (struct Placement_Node*)malloc(sizeof(struct Placement_Node));
+    place_list_v->tail = (struct Placement_Node*)malloc(sizeof(struct Placement_Node));
+
+    place_list_h->head = place_list_h->tail;
+    place_list_v->head = place_list_h->tail;
+
+    place_list_v->head->next = NULL;
+    place_list_v->head->previous = NULL;
+    place_list_h->head->next = NULL;
+    place_list_h->head->previous = NULL;
+    
+    place_list_h->head->crossovers = NULL;
+    place_list_v->head->crossovers = NULL;
+
+    place_list_h->tail->word_index = 0;
+    place_list_h->tail->coords[0] = 0;
+    place_list_h->tail->coords[1] = 0;
+    place_list_h->tail->coords[2] = (int)strlen(words[place_list_h->tail->word_index]) - 1;
+    place_list_h->tail->coords[3] = 0;
+
+    place_list_v->tail->word_index = 0;
+    place_list_v->tail->coords[0] = 0;
+    place_list_v->tail->coords[1] = 0;
+    place_list_v->tail->coords[2] = 0;
+    place_list_v->tail->coords[3] = (int)strlen(words[place_list_h->tail->word_index]) - 1;
+
+    for(int i = 0; i < 4; i++)
+    {
+        place_list_v->tail->edge_coords[i] = place_list_v->tail->coords[i];
+        place_list_h->tail->edge_coords[i] = place_list_h->tail->coords[i];
+    }
+
+    res_h = create_puzzle_singlethread(1, place_list_h);
+    res_v = create_puzzle_singlethread(1, place_list_v);
+
+    // TODO: destroy lists
+
+    if(res_h->crossovers > res_v->crossovers)
+    {
+        return res_h;
+    }
+    return res_v;
 }
 
 void print_board(char** board)

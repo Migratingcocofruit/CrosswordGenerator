@@ -1,4 +1,6 @@
 #include <stdbool.h>
+#include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include <math.h>
 #include "puzzle_globals.h"
@@ -35,6 +37,8 @@ void remove_tail(struct Placement_List* place_list);
 int place_word(struct Placement_Node* new_word, int next_word_place, int tail_place, struct Placement_List* place_list);
 // Generate a board with maximal crossovers(single threaded)
 struct Generation_Result* create_puzzle_singlethread(int word_index, struct Placement_List* place_list);
+// Wrapper for create_puzzle_singlethread
+struct Generation_Result* singlethread_puzzle_wrapper();
 // Generate a result struct from a word placement list
 struct Generation_Result* generate_result(struct Placement_List* place_list);
 // prints a given board
