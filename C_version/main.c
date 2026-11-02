@@ -42,7 +42,7 @@ int main()
         printf("%s\n", words_longest_first[i]);
     }
 
-    words = words_longest_first;
+    //words = words_longest_first;
 
     struct Generation_Result* res = singlethread_puzzle_wrapper();
 

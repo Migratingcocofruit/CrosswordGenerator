@@ -39,7 +39,7 @@ int add_word(int next_word_i, int next_word_place, int tail_place ,struct Placem
     }
 
     // Placement excceds boundries. Abort and return -1
-    if(abs(placement->edge_coords[3] - placement->edge_coords[1]) > width || abs(placement->edge_coords[2] - placement->edge_coords[0]) > height)
+    if(abs(placement->edge_coords[3] - placement->edge_coords[1]) >= width || abs(placement->edge_coords[2] - placement->edge_coords[0]) >= height)
     {
         free(placement);
         return -1;
@@ -160,13 +160,17 @@ struct Generation_Result* generate_result(struct Placement_List* place_list)
     for(int i = 0; i < width; i++)
     {
         res->board[i] = (char*)malloc(sizeof(char) * height);
+        for(int j = 0; j < height; j++)
+        {
+            res->board[i][j] = ' ';
+        }
     }
     res->crossovers = curr_wnode->crossovers;
 
     // Place words
     while(curr_wnode != NULL)
     {
-        vertical = curr_wnode->coords[1] == curr_wnode->coords[3];
+        vertical = curr_wnode->coords[0] == curr_wnode->coords[2];
         // normalize coords of each word so our lowest are at [0,0]
         curr_wnode->coords[0] -= min_x;
         curr_wnode->coords[2] -= min_x;
@@ -176,11 +180,11 @@ struct Generation_Result* generate_result(struct Placement_List* place_list)
         {
             if(vertical)
             {
-                res->board[curr_wnode->coords[0]][i + curr_wnode->coords[1]];
+                res->board[curr_wnode->coords[0]][i + curr_wnode->coords[1]] = words[curr_wnode->word_index][i];
             }
             else
             {
-                res->board[curr_wnode->coords[0] + i][curr_wnode->coords[1]];
+                res->board[curr_wnode->coords[0] + i][curr_wnode->coords[1]] = words[curr_wnode->word_index][i];
             }
         }
         curr_wnode = curr_wnode->previous;
