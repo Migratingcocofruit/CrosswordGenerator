@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <memory.h>
+#include "puzzle_globals.h"
 
 #define FILE_PATH "E:\\Programs\\Repos\\CrosswordGenerator\\C_version\\words.txt"
 

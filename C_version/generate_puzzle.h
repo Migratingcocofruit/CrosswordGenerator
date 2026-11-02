@@ -1,14 +1,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <math.h>
-
-#define DEFAULT_WIDTH 15
-#define DEFAULT_HEIGHT 15
-
-// globals
-int word_count = 10, width = DEFAULT_WIDTH, height = DEFAULT_HEIGHT;
-int word_length = DEFAULT_WIDTH;
-char** words;
+#include "puzzle_globals.h"
 struct Placement_Node
 {
     struct Placement_Node* next;
