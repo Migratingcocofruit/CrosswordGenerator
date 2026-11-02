@@ -369,14 +369,22 @@ gen_result* create_puzzle_multithread(int word_index, placement_list* place_list
         pthread_join(thread_current->thread, NULL);
         thread_current = thread_current->next;
     }
+    results* temp;
     while(curr_res)
     {
         if(curr_res && curr_res->res && (!max_board || max_board->crossovers < curr_res->res->crossovers))
         {
+            free(max_board);
             max_board = curr_res->res;
+            curr_res->res = NULL;
         }
-
+        if(curr_res->res)
+        {
+            free(curr_res->res);
+        }
+        temp = curr_res;
         curr_res = curr_res->next;
+        free(temp);
     }
 
     return max_board;
@@ -386,4 +394,5 @@ void* multi_single_wrapper(void* curr)
 {
     results* curr_res = curr;
     curr_res->res = create_puzzle_singlethread(2, curr_res->place);
+    free(curr_res->place);
 }
