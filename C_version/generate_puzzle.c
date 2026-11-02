@@ -85,7 +85,8 @@ place_word(struct Placement_Node* new_word, struct Placement_List* place_list)
                 return -1;
             }
             // Checking against a horizontal word
-            else if(one_equals_across(new_word->coords[1] - 1, new_word->coords[3] + 1, current->coords[1], current->coords[3]))
+            else if(one_equals_across(new_word->coords[1] - 1, new_word->coords[3] + 1, current->coords[1], current->coords[3])
+                || (in_range(current->coords[1], new_word->coords[1], new_word->coords[3]) && (abs(new_word->coords[0] - current->coords[2]) == 1 || abs(new_word->coords[0] - current->coords[0]) == 1)))
             {
                 return -1;
             }
@@ -117,7 +118,8 @@ place_word(struct Placement_Node* new_word, struct Placement_List* place_list)
                 return -1;
             }
             // Checking against a vertical word
-            else if(one_equals_across(new_word->coords[0] - 1, new_word->coords[2] + 1, current->coords[0], current->coords[2]))
+            else if((one_equals_across(new_word->coords[0] - 1, new_word->coords[2] + 1, current->coords[0], current->coords[2]))
+                || (in_range(current->coords[1], new_word->coords[1], new_word->coords[3]) && (abs(new_word->coords[0] - current->coords[2]) == 1 || abs(new_word->coords[0] - current->coords[0]) == 1)))
             {
                 return -1;
             }
@@ -280,14 +282,15 @@ struct Generation_Result* singlethread_puzzle_wrapper()
     return res_v;
 }
 
-void print_board(char** board)
+void print_board(struct Generation_Result* res)
 {
     for(int i = 0; i < width; i++)
     {
         for(int j = 0; j < height; j++)
         {
-            printf("|%c", board[i][j]);
+            printf("|%c", res->board[i][j]);
         }
         printf("|\n");
     }
+    printf("score: %d\n", res->crossovers);
 }

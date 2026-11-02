@@ -5,6 +5,7 @@
 #include <math.h>
 #include "puzzle_globals.h"
 
+#define in_range(a, b, c) ((b) <= (a)) && ((a) <= (c))
 #define one_in_range(a, b, c, d) ((((c) <= (a)) && ((a) <= (d))) || (((c) <= (b)) && ((b) <= (d))) || (((a) <= (c)) && ((c) <= (b))) || (((a) <= (d)) && ((d) <= (b))))
 #define one_equals_across(a, b, c, d) (((a) == (c)) || ((a) == (d)) || ((b) == (c)) || ((b) == (d)))
 struct Placement_Node
@@ -45,4 +46,4 @@ struct Generation_Result* singlethread_puzzle_wrapper();
 // Generate a result struct from a word placement list
 struct Generation_Result* generate_result(struct Placement_List* place_list);
 // prints a given board
-void print_board(char** board);
+void print_board(struct Generation_Result* res);

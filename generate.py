@@ -343,7 +343,7 @@ def show_board(board):
 if __name__ == '__main__':
     main_thread_time = time.thread_time()
 
-    word_list = ["crumblingcastle","moonlitknight","shovelknight","princesspeach","fortheking","kingcrimson","natkingcole","dukelington"]
+    word_list = ["masterofpuppets","jackofalltrades","dinosaur","elephant","johncena","building","jack","snake","michael","johnny","dove","jeremy","morphine","nadav","tealean"]
 
     print(str(sort_words(word_list)) + "\n")
 
