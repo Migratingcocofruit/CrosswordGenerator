@@ -77,16 +77,16 @@ place_word(struct Placement_Node* new_word, struct Placement_List* place_list)
         // There is a word directly ahead or behind where we are placing, or if we overlap another word in the same orientation Abort.
         if(vertical)
         {
-            // Checking against a vertical word
+            // Checking overlap
             if(current->coords[3] != current->coords[1] 
             && (abs(new_word->coords[0] - current->coords[0]) < 2) 
             && one_in_range(current->coords[1], current->coords[3], new_word->coords[1], new_word->coords[3]))
             {
                 return -1;
             }
-            // Checking against a horizontal word
-            else if(one_equals_across(new_word->coords[1] - 1, new_word->coords[3] + 1, current->coords[1], current->coords[3])
-                || (in_range(current->coords[1], new_word->coords[1], new_word->coords[3]) && (abs(new_word->coords[0] - current->coords[2]) == 1 || abs(new_word->coords[0] - current->coords[0]) == 1)))
+            // Checking end butting
+            else if(((new_word->coords[1] - 1 == current->coords[3] || new_word->coords[3] + 1 == current->coords[1]))
+                && (in_range(new_word->coords[0], current->coords[0], current->coords[2])))
             {
                 return -1;
             }
@@ -118,8 +118,8 @@ place_word(struct Placement_Node* new_word, struct Placement_List* place_list)
                 return -1;
             }
             // Checking against a vertical word
-            else if((one_equals_across(new_word->coords[0] - 1, new_word->coords[2] + 1, current->coords[0], current->coords[2]))
-                || (in_range(current->coords[1], new_word->coords[1], new_word->coords[3]) && (abs(new_word->coords[0] - current->coords[2]) == 1 || abs(new_word->coords[0] - current->coords[0]) == 1)))
+            else if(((new_word->coords[0] - 1 == current->coords[2] || new_word->coords[2] + 1 == current->coords[0]))
+                && (in_range(new_word->coords[1], current->coords[1], current->coords[3])))
             {
                 return -1;
             }
