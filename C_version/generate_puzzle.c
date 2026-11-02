@@ -77,11 +77,14 @@ place_word(struct Placement_Node* new_word, int next_word_place, int tail_place,
         // There is a word directly ahead or behind where we are placing, or if we overlap another word in the same orientation Abort.
         if(vertical)
         {
-            if((new_word->coords[1] - 1 >= current->coords[0] && new_word->coords[1] - 1 <= current->coords[2])
-            || (new_word->coords[3] + 1 >= current->coords[0] && new_word->coords[3] + 1 <= current->coords[2])
-            || (new_word->coords[1] - 1 >= current->coords[1] && new_word->coords[1] - 1 <= current->coords[3])
-            || (new_word->coords[3] + 1 >= current->coords[1] && new_word->coords[3] + 1 <= current->coords[3])
-            || (new_word->coords[1] <= current->coords[1] && new_word->coords[3] >= current->coords[3] && current->coords[3] != current->coords[1] && new_word->coords[1] == current->coords[0]))
+            if(
+            // Overlapping with another vertical word
+            (current->coords[3] != current->coords[1] && new_word->coords[0] == current->coords[0] 
+            && ((new_word->coords[1] - 1 <= current->coords[3] && new_word->coords[3] + 1 >= current->coords[3])
+            || (new_word->coords[3] + 1 >= current->coords[1] && new_word->coords[1] - 1 <= current->coords[1])))
+            // A horizontal word passes directly in front or behind the new word
+            || (new_word->coords[1] - 1 == current->coords[1] && new_word->coords[0] >= current->coords[0] && new_word->coords[0] <= current->coords[2])
+            || (new_word->coords[3] + 1 == current->coords[1] && new_word->coords[0] >= current->coords[0] && new_word->coords[0] <= current->coords[2]))
             {
                 return -1;
             }
@@ -105,11 +108,14 @@ place_word(struct Placement_Node* new_word, int next_word_place, int tail_place,
         // Same but for a horizontal word
         else
         {
-            if((new_word->coords[0] - 1 >= current->coords[1] && new_word->coords[0] - 1 <= current->coords[3])
-            || (new_word->coords[2] + 1 >= current->coords[1] && new_word->coords[2] + 1 <= current->coords[3])
-            || (new_word->coords[0] - 1 >= current->coords[0] && new_word->coords[0] - 1 <= current->coords[2])
-            || (new_word->coords[2] + 1 >= current->coords[0] && new_word->coords[2] + 1 <= current->coords[2])
-            || (new_word->coords[0] <= current->coords[0] && new_word->coords[2] >= current->coords[2] && current->coords[2] != current->coords[0]  && new_word->coords[1] == current->coords[0]))
+            if(
+            // Overlapping with another horizontal word
+            (current->coords[0] != current->coords[2] && new_word->coords[1] == current->coords[1] 
+            && ((new_word->coords[0] - 1 <= current->coords[2] && new_word->coords[2] + 1 >= current->coords[2])
+            || (new_word->coords[2] + 1 >= current->coords[0] && new_word->coords[0] - 1 <= current->coords[0])))
+            // A vertical word passes directly infront or behind.
+            || (new_word->coords[0] - 1 == current->coords[0] && new_word->coords[1] >= current->coords[1] && new_word->coords[1] <= current->coords[3])
+            || (new_word->coords[2] + 1 == current->coords[0] && new_word->coords[1] >= current->coords[1] && new_word->coords[1] <= current->coords[3]))
             {
                 return -1;
             }
@@ -201,7 +207,7 @@ struct Generation_Result* create_puzzle_singlethread(int word_index, struct Plac
                 if(add_word(word_index, i, j, place_list) > 0)
                 {
                     curr_board = create_puzzle_singlethread(word_index + 1, place_list);
-                    if(max_board == NULL || curr_board->crossovers > max_board->crossovers)
+                    if(curr_board && (max_board == NULL || curr_board->crossovers > max_board->crossovers))
                     {
                         free(max_board);
                         max_board = curr_board;
