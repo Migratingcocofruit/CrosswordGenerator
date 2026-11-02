@@ -130,5 +130,88 @@ place_word(struct Placement_Node* new_word, int next_word_place, int tail_place,
                 }
             }
         }
+
+        return crossovers;
     }
+}
+
+void remove_tail(struct Placement_List* place_list)
+{
+    place_list->tail = place_list->tail->previous;
+    free(place_list->tail->next);
+    place_list->tail->next = NULL;
+}
+
+// Converts a word placement list into a result struct
+struct Generation_Result* generate_result(struct Placement_List* place_list)
+{
+    bool vertical;
+    struct Placement_Node* curr_wnode = place_list->tail;
+    int min_x = curr_wnode->edge_coords[0], min_y = curr_wnode->edge_coords[1];
+    // Allocate struct
+    struct Generation_Result* res = (struct Generation_Result*)malloc(sizeof(struct Generation_Result));
+    res->board = (char**)malloc(sizeof(char*) * width);
+    for(int i = 0; i < width; i++)
+    {
+        res->board[i] = (char*)malloc(sizeof(char) * height);
+    }
+    res->crossovers = curr_wnode->crossovers;
+
+    // Place words
+    while(curr_wnode != NULL)
+    {
+        vertical = curr_wnode->coords[1] == curr_wnode->coords[3];
+        // normalize coords of each word so our lowest are at [0,0]
+        curr_wnode->coords[0] -= min_x;
+        curr_wnode->coords[2] -= min_x;
+        curr_wnode->coords[1] -= min_y;
+        curr_wnode->coords[3] -= min_y;
+        for(int i = 0; i < strlen(words[curr_wnode->word_index]); i++)
+        {
+            if(vertical)
+            {
+                res->board[curr_wnode->coords[0]][i + curr_wnode->coords[1]];
+            }
+            else
+            {
+                res->board[curr_wnode->coords[0] + i][curr_wnode->coords[1]];
+            }
+        }
+        curr_wnode = curr_wnode->previous;
+    }
+
+    return res;
+}
+
+struct Generation_Result* create_puzzle_singlethread(int word_index, struct Placement_List* place_list)
+{
+    if(word_index >= word_count)
+    {
+        return generate_result(place_list);
+    }
+
+    struct Generation_Result* max_board, *curr_board;
+    max_board->crossovers = 0;
+
+    for(int i = 0; i < strlen(words[word_index]); i++)
+    {
+        for(int j = 0; j < strlen(words[place_list->tail->word_index]); j++)
+        {
+            if(words[word_index][i] == words[place_list->tail->word_index][j])
+            {
+                if(add_word(word_index, i, j, place_list) > 0)
+                {
+                    curr_board = (word_index + 1, place_list);
+                    if(curr_board->crossovers > max_board->crossovers)
+                    {
+                        free(max_board);
+                        max_board = curr_board;
+                    }
+                    remove_tail(place_list);
+                }
+            }
+        }
+    }
+
+    return max_board;
 }
