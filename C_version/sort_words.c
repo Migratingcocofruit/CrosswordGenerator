@@ -130,9 +130,9 @@ void sort_words(char** words, int word_length, int word_count)
                 {
                     // Update weight of heaviest path also containing vertex j
                     int next_mask = i | (1 << k);
-                    if(path_table[next_mask][k][0] < path_table[i][j][0] + adjacency[j][k])
+                    if(path_table[next_mask][k][0] < (path_table[i][j][0] > 0 ? path_table[i][j][0] * adjacency[j][k] : path_table[i][j][0] + adjacency[j][k]))
                     {
-                        path_table[next_mask][k][0] = path_table[i][j][0] + adjacency[j][k];
+                        path_table[next_mask][k][0] = (path_table[i][j][0] > 0 ? path_table[i][j][0] * adjacency[j][k] : path_table[i][j][0] + adjacency[j][k]);
                         path_table[next_mask][k][1] = i; // "parent" subset is the one we got to it from
                         path_table[next_mask][k][2] = j; // parent vertex is the one we stepped from
                     }
