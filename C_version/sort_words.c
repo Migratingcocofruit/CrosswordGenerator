@@ -32,8 +32,8 @@ void split_words(char* buff, int buff_size)
     {
         if(buff[i] == ',' || buff[i] == '\0')
         {
-            memcpy(words[j], buff + last, k);
-            words[j][k] = '\0'; // add null terminator
+            memcpy(word_list[j], buff + last, k);
+            word_list[j][k] = '\0'; // add null terminator
             j++;
             k = 0;
             last = i+1;           
@@ -85,7 +85,7 @@ void sort_words()
         adjacency[i][i] = 0;
         for(int j = i + 1; j < word_count; j++)
         {
-            adjacency[i][j] = common_letters(words[i], words[j]);
+            adjacency[i][j] = common_letters(word_list[i], word_list[j]);
             adjacency[j][i] = adjacency[i][j];
         }
     }
@@ -160,18 +160,10 @@ void sort_words()
     {
         // Walk the heaviest path and swap each word to its place in the list
 
-        // Back up the original list
-        char** temp = (char**)malloc(word_count * sizeof(char*));
-        for(int i = 0; i < word_count; i++)
-        {
-            temp[i] = malloc(sizeof(char) * word_length);
-            memcpy(temp[i], words[i], word_length);
-        }
-
         for(int i = 0; i < word_count; i++)
         {
             // Place elements in their new place
-            memcpy(words_heaviest_path[i], temp[curr_vertex], word_length);
+            memcpy(words_heaviest_path[i], word_list[curr_vertex], word_length);
             // Walk the path
             last_vertex = curr_vertex;
             curr_vertex = path_table[curr_mask][curr_vertex][2];
@@ -182,9 +174,9 @@ void sort_words()
         curr_mask = (1 << (word_count)) - 1;
         for(int i = 0; i < word_count; i++)
         {
-            if(strlen(temp[i]) > word_max_length)
+            if(strlen(word_list[i]) > word_max_length)
             {
-                word_max_length = (int)strlen(temp[i]);
+                word_max_length = (int)strlen(word_list[i]);
                 curr_vertex = i;
             }
         }
@@ -192,14 +184,56 @@ void sort_words()
         for(int i = 0; i < word_count; i++)
         {
             // Place elements in their new place
-            memcpy(words_longest_first[i], temp[curr_vertex], word_length);
+            memcpy(words_longest_first[i], word_list[curr_vertex], word_length);
             // Walk the path
             last_vertex = curr_vertex;
             curr_vertex = path_table[curr_mask][curr_vertex][2];
             curr_mask = path_table[curr_mask][last_vertex][1];
         }
-        free(temp);
+    }
+
+    sort_words_commons(adjacency);
+
+    for(int i = 0; i < word_count; i++)
+    {
+        free(adjacency[i]);
     }
     free(adjacency);
+    for(int i = 0; i < (1 << word_count); i++)
+    {
+        for(int j = 0; j < word_count; j++)
+        {
+            free(path_table[i][j]);
+        }
+        free(path_table[i]);
+    }
     free(path_table);
+}
+
+void sort_words_commons(int** adjacency)
+{
+    int* commons = (int*)malloc(word_count * sizeof(int));
+    for(int i = 0; i < word_count; i++)
+    {
+        commons[i] = 0;
+        for(int j = 0; j < word_count; j++)
+        {
+            commons[i] += adjacency[i][j];
+        }
+    }
+    for(int max_ind = 0, max = 0, i = 0; i < word_count; i++)
+    {
+        max = 0;
+        for(int j = 0; j < word_count; j++)
+        {
+            if(commons[j] > max)
+            {
+                max = commons[j];
+                max_ind = j;
+            }
+        }
+        commons[max_ind] = 0;
+        memcpy(words_commons[i], word_list[max_ind], word_length);
+    }
+    free(commons);
 }

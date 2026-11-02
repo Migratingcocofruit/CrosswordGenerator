@@ -4,6 +4,9 @@
 #include <string.h>
 #include <math.h>
 #include "puzzle_globals.h"
+
+#define one_in_range(a, b, c, d) ((((c) <= (a)) && ((a) <= (d))) || (((c) <= (b)) && ((b) <= (d))) || (((a) <= (c)) && ((c) <= (b))) || (((a) <= (d)) && ((d) <= (b))))
+#define one_equals_across(a, b, c, d) (((a) == (c)) || ((a) == (d)) || ((b) == (c)) || ((b) == (d)))
 struct Placement_Node
 {
     struct Placement_Node* next;
@@ -30,11 +33,11 @@ struct Generation_Result
     char** board;
 };
 
-int add_word(int next_word_i, int next_word_place, int tail_place ,struct Placement_List* place_list);
+int add_word(int next_word_i, int next_word_place, int attachment_place, struct Placement_Node* attachment ,struct Placement_List* place_list);
 
 void remove_tail(struct Placement_List* place_list);
 // Try to place a word in the list. Retunrs number of crossovers if successful and -1 otherwise.
-int place_word(struct Placement_Node* new_word, int next_word_place, int tail_place, struct Placement_List* place_list);
+int place_word(struct Placement_Node* new_word, struct Placement_List* place_list);
 // Generate a board with maximal crossovers(single threaded)
 struct Generation_Result* create_puzzle_singlethread(int word_index, struct Placement_List* place_list);
 // Wrapper for create_puzzle_singlethread

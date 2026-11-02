@@ -17,3 +17,5 @@ void split_words(char* buff, int buff_size);
 int common_letters(char* word1, char* word2);
 // Sorts the words in the word list such that the sum of common words between each pair of words is maximal
 void sort_words();
+//
+void sort_words_commons();

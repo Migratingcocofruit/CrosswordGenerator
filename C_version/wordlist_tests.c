@@ -18,30 +18,30 @@ int main()
 
     printf("word count: %d\n", word_count);
 
-    words = (char**)malloc(word_count * sizeof(char**));
+    word_list = (char**)malloc(word_count * sizeof(char**));
     for(int i = 0; i < word_count ; i++)
     {
-        words[i] = (char*)malloc(word_length * sizeof(char));
+        word_list[i] = (char*)malloc(word_length * sizeof(char));
     }
 
     split_words(buff, size);
 
     for(int i = 0; i< word_count; i++)
     {
-        printf("%s\n", words[i]);
+        printf("%s\n", word_list[i]);
     }
 
     printf("\n");
     
-    sort_words(words);
+    sort_words();
 
     for(int i = 0; i< word_count; i++)
     {
-        printf("%s\n", words[i]);
+        printf("%s\n", word_list[i]);
     }
 
     free(buff);
-    free(words);
+    free(word_list);
 
     return 0;
 }

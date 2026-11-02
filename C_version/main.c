@@ -12,19 +12,20 @@ int main()
 
     count_words(buff, size);
 
+    word_list = (char**)malloc(word_count * sizeof(char**));
+    words_commons = (char**)malloc(word_count * sizeof(char**));
     words_heaviest_path = (char**)malloc(word_count * sizeof(char**));
-    for(int i = 0; i < word_count ; i++)
-    {
-        words_heaviest_path[i] = (char*)malloc(word_length * sizeof(char));
-    }
-
     words_longest_first = (char**)malloc(word_count * sizeof(char**));
+
     for(int i = 0; i < word_count ; i++)
     {
+        word_list[i] = (char*)malloc(word_length * sizeof(char));
+        words_heaviest_path[i] = (char*)malloc(word_length * sizeof(char));
         words_longest_first[i] = (char*)malloc(word_length * sizeof(char));
+        words_commons[i] = (char*)malloc(word_length * sizeof(char));
     }
 
-    words = words_heaviest_path;
+    words = words_longest_first;
 
     split_words(buff, size);
 
@@ -33,13 +34,25 @@ int main()
     printf("normal order:\n==========\n");
     for(int i = 0; i < word_count; i++)
     {
-        printf("%s\n", words[i]);
+        printf("%s\n", word_list[i]);
+    }
+
+    printf("\nheaviest path order:\n===============\n");
+    for(int i = 0; i < word_count; i++)
+    {
+        printf("%s\n", words_heaviest_path[i]);
     }
 
     printf("\nlongest first order:\n===============\n");
     for(int i = 0; i < word_count; i++)
     {
         printf("%s\n", words_longest_first[i]);
+    }
+
+    printf("\nmost common characters order:\n===============\n");
+    for(int i = 0; i < word_count; i++)
+    {
+        printf("%s\n", words_commons[i]);
     }
 
     //words = words_longest_first;
@@ -60,7 +73,13 @@ int main()
     free(buff);
     for(int i = 0; i < word_count; i++)
     {
-        free(words[i]);
+        free(word_list[i]);
+        free(words_longest_first[i]);
+        free(words_heaviest_path[i]);
+        free(words_commons[i]);
     }
-    free(words);
+    free(word_list);
+    free(words_longest_first);
+    free(words_heaviest_path);
+    free(words_commons);
 }
