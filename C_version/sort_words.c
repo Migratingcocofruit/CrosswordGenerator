@@ -170,8 +170,29 @@ void sort_words()
 
         for(int i = 0; i < word_count; i++)
         {
-            // Place elements in their place from the backup
-            memcpy(words[i], temp[curr_vertex], word_length);
+            // Place elements in their new place
+            memcpy(words_heaviest_path[i], temp[curr_vertex], word_length);
+            // Walk the path
+            last_vertex = curr_vertex;
+            curr_vertex = path_table[curr_mask][curr_vertex][2];
+            curr_mask = path_table[curr_mask][last_vertex][1];
+        }
+
+        int word_max_length = 0;
+        curr_mask = (1 << (word_count)) - 1;
+        for(int i = 0; i < word_count; i++)
+        {
+            if(strlen(temp[i]) > word_max_length)
+            {
+                word_max_length = (int)strlen(temp[i]);
+                curr_vertex = i;
+            }
+        }
+
+        for(int i = 0; i < word_count; i++)
+        {
+            // Place elements in their new place
+            memcpy(words_longest_first[i], temp[curr_vertex], word_length);
             // Walk the path
             last_vertex = curr_vertex;
             curr_vertex = path_table[curr_mask][curr_vertex][2];

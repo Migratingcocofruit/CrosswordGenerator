@@ -227,15 +227,15 @@ struct Generation_Result* singlethread_puzzle_wrapper()
     place_list_v->tail = (struct Placement_Node*)malloc(sizeof(struct Placement_Node));
 
     place_list_h->head = place_list_h->tail;
-    place_list_v->head = place_list_h->tail;
+    place_list_v->head = place_list_v->tail;
 
     place_list_v->head->next = NULL;
     place_list_v->head->previous = NULL;
     place_list_h->head->next = NULL;
     place_list_h->head->previous = NULL;
     
-    place_list_h->head->crossovers = NULL;
-    place_list_v->head->crossovers = NULL;
+    place_list_h->head->crossovers = 0;
+    place_list_v->head->crossovers = 0;
 
     place_list_h->tail->word_index = 0;
     place_list_h->tail->coords[0] = 0;
@@ -260,7 +260,7 @@ struct Generation_Result* singlethread_puzzle_wrapper()
 
     // TODO: destroy lists
 
-    if(res_h->crossovers > res_v->crossovers)
+    if(res_v == NULL || res_h->crossovers > res_v->crossovers)
     {
         return res_h;
     }
