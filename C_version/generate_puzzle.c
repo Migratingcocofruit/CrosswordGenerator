@@ -83,39 +83,36 @@ place_word(struct Placement_Node* new_word, struct Placement_List* place_list)
     struct Placement_Node* current = place_list->tail;
     while(current != NULL)
     {
-        // There is a word directly ahead or behind where we are placing, or if we overlap another word in the same orientation Abort.
-
-            // Checking overlap
-            if(current->coords[line_end] != current->coords[line_start] 
-            && (abs(new_word->coords[cross_start] - current->coords[cross_start]) < 2) 
-            && one_in_range(current->coords[line_start], current->coords[line_end], new_word->coords[line_start], new_word->coords[line_end]))
+        // There is a word starting ahead or ending behind where we are placing, or if we overlap or are adjacent to another word in the same orientation Abort.
+        // Checking overlap
+        if(current->coords[line_end] != current->coords[line_start] 
+        && (abs(new_word->coords[cross_start] - current->coords[cross_start]) < 2) 
+        && one_in_range(current->coords[line_start], current->coords[line_end], new_word->coords[line_start], new_word->coords[line_end]))
+        {
+            return -1;
+        }
+        // Checking end butting
+        else if(((new_word->coords[line_start] - 1 == current->coords[line_end] || new_word->coords[line_end] + 1 == current->coords[line_start]))
+            && (in_range(new_word->coords[cross_start], current->coords[cross_start], current->coords[cross_end])))
+        {
+            return -1;
+        }
+        // Check that all letters only overlap with other words on the same letter
+        for(int i = 0; i <= (new_word->coords[line_end] - new_word->coords[line_start]); i++)
+        {
+            if((new_word->coords[line_start] + i == current->coords[line_start])
+            && (new_word->coords[cross_start] >= current->coords[cross_start] && new_word->coords[cross_start] <= current->coords[cross_end]))
             {
-                return -1;
-            }
-            // Checking end butting
-            else if(((new_word->coords[line_start] - 1 == current->coords[line_end] || new_word->coords[line_end] + 1 == current->coords[line_start]))
-                && (in_range(new_word->coords[cross_start], current->coords[cross_start], current->coords[cross_end])))
-            {
-                return -1;
-            }
-            // Check that all letters only overlap with other words on the same letter
-            for(int i = 0; i <= (new_word->coords[line_end] - new_word->coords[line_start]); i++)
-            {
-                if((new_word->coords[line_start] + i == current->coords[line_start])
-                && (new_word->coords[cross_start] >= current->coords[cross_start] && new_word->coords[cross_start] <= current->coords[cross_end]))
+                if(words[new_word->word_index][i] == words[current->word_index][new_word->coords[cross_start] - current->coords[cross_start]])
                 {
-                    if(words[new_word->word_index][i] == words[current->word_index][new_word->coords[cross_start] - current->coords[cross_start]])
-                    {
-                        crossovers++;
-                    }
-                    else
-                    {
-                        return -1;
-                    }
+                    crossovers++;
+                }
+                else
+                {
+                    return -1;
                 }
             }
-        
-        // Same but for a horizontal word
+        }
         current = current->previous;
     }
     return crossovers;
