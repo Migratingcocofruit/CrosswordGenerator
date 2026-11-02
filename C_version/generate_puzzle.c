@@ -215,3 +215,15 @@ struct Generation_Result* create_puzzle_singlethread(int word_index, struct Plac
 
     return max_board;
 }
+
+void print_board(char** board)
+{
+    for(int i = 0; i < width; i++)
+    {
+        for(int j = 0; j < height; j++)
+        {
+            printf("|%c", board[i][j]);
+        }
+        printf("|\n");
+    }
+}
