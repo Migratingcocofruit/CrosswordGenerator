@@ -2,8 +2,21 @@
 #include "generate_puzzle.h"
 #include "sort_words.h"
 
-int main()
+int main(int argc, char* argv[])
 {
+    char path[256];
+    memcpy(path, argv[1] ? argv[1] : FILE_PATH, 256);
+
+    if(argv[2])
+    {
+        width = atoi(argv[2]);
+    }
+
+    if(argv[3])
+    {
+        height = atoi(argv[3]);
+    }
+
     int size = height * width * 2;
 
     char* buff = (char*)malloc(size * sizeof(char));
@@ -12,7 +25,7 @@ int main()
 
     gen_result* res[ORDER_TYPE_COUNT];
 
-    read_words(buff, size);
+    read_words(buff, size, path);
 
     count_words(buff, size);
 

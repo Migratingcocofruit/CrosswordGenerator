@@ -1,7 +1,10 @@
 #include "sort_words.h"
 
-int main()
+int main(int argc, char* argv[])
 {
+    char path[256];
+    memcpy(path, argv[1] ? argv[1] : FILE_PATH, 256);
+
     width = DEFAULT_WIDTH, height = DEFAULT_HEIGHT;
     
     int size = height * width * 2;
@@ -10,7 +13,7 @@ int main()
 
     char* buff = (char*)malloc(size * sizeof(char));
 
-    read_words(buff, size);
+    read_words(buff, size, path);
 
     printf("%s\n", buff);
 

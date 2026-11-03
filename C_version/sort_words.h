@@ -8,7 +8,7 @@
 #define FILE_PATH "E:\\Programs\\Repos\\CrosswordGenerator\\C_version\\words.txt"
 
 // Read words from file into buffer
-void read_words(char* buff, int size);
+void read_words(char* buff, int size, char* path);
 // Count words in word list for array size
 void count_words(char* buff, int size);
 // Splits and allocates the word array

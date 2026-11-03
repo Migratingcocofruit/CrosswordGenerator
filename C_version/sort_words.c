@@ -1,9 +1,9 @@
 #include "sort_words.h"
 
-void read_words(char* buff, int size)
+void read_words(char* buff, int size, char* path)
 {
     FILE* fp;
-    if(fopen_s(&fp , FILE_PATH, "r") != 0)
+    if(fopen_s(&fp , path, "r") != 0)
     {
         perror("failed");
         printf("unable to open file: %s", FILE_PATH);
