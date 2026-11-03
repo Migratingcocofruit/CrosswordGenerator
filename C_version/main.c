@@ -62,7 +62,7 @@ int main()
     {
         printf("\n");
 
-        if(res)
+        if(res[i])
         {
             print_board(res[i]);
         }

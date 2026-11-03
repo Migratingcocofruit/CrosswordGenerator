@@ -130,6 +130,10 @@ void remove_tail(placement_list* place_list)
 // Converts a word placement list into a result struct
 gen_result* generate_result(placement_list* place_list)
 {
+    if(!place_list)
+    {
+        return NULL;
+    }
     bool vertical;
     placement_node* curr_wnode = place_list->tail;
     int min_x = curr_wnode->edge_coords[0], min_y = curr_wnode->edge_coords[1];
@@ -167,8 +171,7 @@ gen_result* generate_result(placement_list* place_list)
     return res;
 }
 
-placement_list* 
-create_puzzle_singlethread(int word_index, placement_list* place_list)
+placement_list* create_puzzle_singlethread(int word_index, placement_list* place_list)
 {
     if(word_index >= word_count)
     {
