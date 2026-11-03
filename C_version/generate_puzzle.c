@@ -99,6 +99,11 @@ int place_word(placement_node* new_word, placement_list* place_list)
         {
             return -1;
         }
+        else if(in_range(current->coords[line_start], new_word->coords[line_start],new_word->coords[line_end])
+            && (current->coords[cross_start] - 1 == new_word->coords[cross_start] || current->coords[cross_end] + 1 == new_word->coords[cross_start]))
+        {
+            return -1;
+        }
         // Check that all letters only overlap with other words on the same letter
         for(int i = 0; i <= (new_word->coords[line_end] - new_word->coords[line_start]); i++)
         {
