@@ -272,8 +272,10 @@ gen_result* puzzle_gen_wrapper_st()
 
     if(res_v == NULL || res_h->crossovers > res_v->crossovers)
     {
+        gen_res_dtor(res_v);
         return res_h;
     }
+    gen_res_dtor(res_h);
     return res_v;
 }
 
