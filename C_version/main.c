@@ -5,16 +5,30 @@
 int main(int argc, char* argv[])
 {
     char path[256];
-    memcpy(path, argv[1] ? argv[1] : FILE_PATH, 256);
+    memcpy(path, argc > 1 ? argv[1] : FILE_PATH, 256);
 
-    if(argv[2])
+    if(argc > 2)
     {
-        width = atoi(argv[2]);
+        if(atoi(argv[2]) < 1)
+        {
+            fprintf(stderr, "invalid width set(%d), defaulting to %d", atoi(argv[2]), DEFAULT_WIDTH);
+        }
+        else
+        {
+            width = atoi(argv[2]);
+        }
     }
 
-    if(argv[3])
-    {
-        height = atoi(argv[3]);
+    if(argc > 3)
+    {   
+        if(atoi(argv[3]) < 1)
+        {
+            fprintf(stderr, "invalid height set(%d), defaulting to %d", atoi(argv[3]), DEFAULT_HEIGHT);
+        }
+        else
+        {
+            height = atoi(argv[3]);
+        }
     }
 
     int size = height * width * 2;
