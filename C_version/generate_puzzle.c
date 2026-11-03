@@ -16,14 +16,14 @@ int add_word(int next_word_i, int next_word_place, int attachment_place, placeme
         placement->coords[0] = attachment->coords[0] + attachment_place;
         placement->coords[1] = attachment->coords[1] - next_word_place;
         placement->coords[2] = placement->coords[0];
-        placement->coords[3] = placement->coords[1] + (int)strlen(words[next_word_i]) - 1;
+        placement->coords[3] = placement->coords[1] + (int)strlen(order_types[place_list->order_index][next_word_i]) - 1;
     }
     else
     {
         
         placement->coords[0] = attachment->coords[0] - next_word_place;
         placement->coords[1] = attachment->coords[1] + attachment_place;
-        placement->coords[2] = placement->coords[0] + (int)strlen(words[next_word_i]) - 1;
+        placement->coords[2] = placement->coords[0] + (int)strlen(order_types[place_list->order_index][next_word_i]) - 1;
         placement->coords[3] = placement->coords[1];
     }
 
@@ -105,7 +105,7 @@ int place_word(placement_node* new_word, placement_list* place_list)
             if((new_word->coords[line_start] + i == current->coords[line_start])
             && (new_word->coords[cross_start] >= current->coords[cross_start] && new_word->coords[cross_start] <= current->coords[cross_end]))
             {
-                if(words[new_word->word_index][i] == words[current->word_index][new_word->coords[cross_start] - current->coords[cross_start]])
+                if(order_types[place_list->order_index][new_word->word_index][i] == order_types[place_list->order_index][current->word_index][new_word->coords[cross_start] - current->coords[cross_start]])
                 {
                     crossovers++;
                 }
@@ -154,15 +154,15 @@ gen_result* generate_result(placement_list* place_list)
     while(curr_wnode != NULL)
     {
         vertical = curr_wnode->coords[0] == curr_wnode->coords[2];
-        for(int i = 0; i < strlen(words[curr_wnode->word_index]); i++)
+        for(int i = 0; i < strlen(order_types[place_list->order_index][curr_wnode->word_index]); i++)
         {
             if(vertical)
             {
-                res->board[curr_wnode->coords[0] - min_x][i + curr_wnode->coords[1] - min_y] = words[curr_wnode->word_index][i];
+                res->board[curr_wnode->coords[0] - min_x][i + curr_wnode->coords[1] - min_y] = order_types[place_list->order_index][curr_wnode->word_index][i];
             }
             else
             {
-                res->board[curr_wnode->coords[0] + i - min_x][curr_wnode->coords[1] - min_y] = words[curr_wnode->word_index][i];
+                res->board[curr_wnode->coords[0] + i - min_x][curr_wnode->coords[1] - min_y] = order_types[place_list->order_index][curr_wnode->word_index][i];
             }
         }
         curr_wnode = curr_wnode->previous;
@@ -184,11 +184,11 @@ placement_list* create_puzzle_singlethread(int word_index, placement_list* place
 
     while(curr_word)
     {
-        for(int i = 0; i < strlen(words[word_index]); i++)
+        for(int i = 0; i < strlen(order_types[place_list->order_index][word_index]); i++)
         {
-            for(int j = 0; j < strlen(words[curr_word->word_index]); j++)
+            for(int j = 0; j < strlen(order_types[place_list->order_index][curr_word->word_index]); j++)
             {
-                if(words[word_index][i] == words[curr_word->word_index][j])
+                if(order_types[place_list->order_index][word_index][i] == order_types[place_list->order_index][curr_word->word_index][j])
                 {
                     if(add_word(word_index, i, j, curr_word, place_list) > 0)
                     {                        
@@ -208,11 +208,13 @@ placement_list* create_puzzle_singlethread(int word_index, placement_list* place
     return max_board;
 }
 
-placement_list* init_placement_list(int word_index ,bool vertical)
+placement_list* init_placement_list(int word_index, int word_order ,bool vertical)
 {
     placement_list* place_list = (placement_list*)malloc(sizeof(placement_list));
 
     place_list->tail = (placement_node*)malloc(sizeof(placement_node));
+
+    place_list->order_index = word_order;
 
     place_list->head = place_list->tail;
 
@@ -225,7 +227,7 @@ placement_list* init_placement_list(int word_index ,bool vertical)
     place_list->tail->coords[0] = 0;
     place_list->tail->coords[1] = 0;
     place_list->tail->coords[2] = 0;
-    place_list->tail->coords[3] = (int)strlen(words[place_list->tail->word_index]) - 1;
+    place_list->tail->coords[3] = (int)strlen(order_types[word_order][place_list->tail->word_index]) - 1;
 
     memcpy(place_list->tail->edge_coords, place_list->tail->coords,sizeof(int) * 4);
 
@@ -248,10 +250,8 @@ void puzzle_gen_wrapper_mt(gen_result** res)
     // Create threads for each sorting
     for(int i = 0 ; i < ORDER_TYPE_COUNT; i++)
     {
-        words = order_types[i];
-
-        placement_list* place_list_h = init_placement_list(0, false);
-        placement_list* place_list_v = init_placement_list(0, true);
+        placement_list* place_list_h = init_placement_list(0, i, false);
+        placement_list* place_list_v = init_placement_list(0, i, true);
 
         create_puzzle_multithread(1, place_list_h, thread_lists[i]);
         create_puzzle_multithread(1, place_list_v, thread_lists[i] + 1);
@@ -305,13 +305,11 @@ void puzzle_gen_wrapper_st(gen_result** res)
 {
     for(int i=0; i < ORDER_TYPE_COUNT; i++)
     {
-        words = order_types[i];
-
         gen_result* res_h = NULL;
         gen_result* res_v = NULL;
 
-        placement_list* place_list_h = init_placement_list(0, false);
-        placement_list* place_list_v = init_placement_list(0, true);
+        placement_list* place_list_h = init_placement_list(0, i, false);
+        placement_list* place_list_v = init_placement_list(0, i, true);
 
         
         res_h = generate_result(create_puzzle_singlethread(1, place_list_h));
@@ -355,6 +353,7 @@ placement_list* copy_placement_list(placement_list* placement)
     placement_list* new_list = (placement_list*)malloc(sizeof(placement_list));
     new_list->head = NULL;
     new_list->tail = NULL;
+    new_list->order_index = placement->order_index;
     if(placement->head == NULL)
     {
         return new_list;
@@ -399,11 +398,11 @@ void create_puzzle_multithread(int word_index, placement_list* place_list, threa
 
     while(curr_word)
     {
-        for(int i = 0; i < strlen(words[word_index]); i++)
+        for(int i = 0; i < strlen(order_types[place_list->order_index][word_index]); i++)
         {
-            for(int j = 0; j < strlen(words[curr_word->word_index]); j++)
+            for(int j = 0; j < strlen(order_types[place_list->order_index][curr_word->word_index]); j++)
             {
-                if(words[word_index][i] == words[curr_word->word_index][j])
+                if(order_types[place_list->order_index][word_index][i] == order_types[place_list->order_index][curr_word->word_index][j])
                 {
                     if(add_word(word_index, i, j, curr_word, place_list) > 0)
                     {
