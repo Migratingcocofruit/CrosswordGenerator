@@ -226,12 +226,12 @@ placement_list* init_placement_list(int word_index ,bool vertical)
     return place_list;
 }
 
-gen_result* puzzle_gen_wrapper(bool mt)
+void puzzle_gen_wrapper(gen_result** res ,bool mt)
 {
-    return mt ? puzzle_gen_wrapper_mt() : puzzle_gen_wrapper_st();
+    mt ? puzzle_gen_wrapper_mt(res) : puzzle_gen_wrapper_st(res);
 }
 
-gen_result* puzzle_gen_wrapper_mt()
+void puzzle_gen_wrapper_mt(gen_result** res)
 {
     gen_result* res_h = NULL;
     gen_result* res_v = NULL;
@@ -248,12 +248,12 @@ gen_result* puzzle_gen_wrapper_mt()
 
     if(res_v == NULL || res_h->crossovers > res_v->crossovers)
     {
-        return res_h;
+        *res = res_h;
     }
-    return res_v;
+    *res = res_v;
 }
 
-gen_result* puzzle_gen_wrapper_st()
+void puzzle_gen_wrapper_st(gen_result** res)
 {
     gen_result* res_h = NULL;
     gen_result* res_v = NULL;
@@ -273,10 +273,10 @@ gen_result* puzzle_gen_wrapper_st()
     if(res_v == NULL || res_h->crossovers > res_v->crossovers)
     {
         gen_res_dtor(res_v);
-        return res_h;
+        *res = res_h;
     }
     gen_res_dtor(res_h);
-    return res_v;
+    *res = res_v;
 }
 
 void print_board(gen_result* res)
