@@ -306,11 +306,6 @@ placement_list* copy_placement_list(placement_list* placement)
 
 gen_result* create_puzzle_multithread(int word_index, placement_list* place_list)
 {
-    if(word_index >= word_count)
-    {
-        return generate_result(place_list);
-    }
-
     thread_list* thread_head = (thread_list*)malloc(sizeof(thread_list));
     thread_list* curr_thread = thread_head;
     thread_head->next = NULL;
