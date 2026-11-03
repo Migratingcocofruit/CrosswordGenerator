@@ -24,6 +24,7 @@ struct Placement_Node
     int crossovers;
 };
 typedef struct Placement_Node placement_node;
+
 struct Placement_List
 {
     struct Placement_Node* head;
@@ -43,7 +44,7 @@ struct Thread_List
     struct Thread_List* next;
     pthread_t thread;
 };
-typedef struct Thread_List threads;
+typedef struct Thread_List thread_list;
 
 struct Result_List
 {
@@ -66,8 +67,20 @@ gen_result* puzzle_gen_wrapper(bool mt);
 gen_result* generate_result(placement_list* place_list);
 // prints a given board
 void print_board(gen_result* res);
-//
+// copies a word placement list
 placement_list* copy_placement_list(placement_list* placement);
-// 
+// Creates threads and assigns work
 gen_result* create_puzzle_multithread(int word_index, placement_list* place_list);
+// Function called by each thread of the multithreaded puzzle generator
 void* multi_single_wrapper(void* place_list);
+// Destroys a list using a given Dtor. Dtor needs to destroy 1 element and return the next one
+void list_dtor(void*(*dtor)(void*), void* list);
+
+// dtors.
+void place_list_dtor(placement_list* place);
+void gen_res_dtor(gen_result* gen_res);
+void* place_node_dtor(void* place_node);
+void* res_list_dtor(void* results);
+void* thread_list_dtor(void* threads);
+
+
