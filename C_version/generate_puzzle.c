@@ -267,7 +267,8 @@ gen_result* puzzle_gen_wrapper_st()
     res_v = create_puzzle_singlethread(1, place_list_v);
     
 
-    // TODO: destroy lists
+    place_list_dtor(place_list_h);
+    place_list_dtor(place_list_v);
 
     if(res_v == NULL || res_h->crossovers > res_v->crossovers)
     {
