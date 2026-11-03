@@ -61,8 +61,12 @@ void remove_tail(placement_list* place_list);
 int place_word(placement_node* new_word, placement_list* place_list);
 // Generate a board with maximal crossovers(single threaded)
 gen_result* create_puzzle_singlethread(int word_index, placement_list* place_list);
-// Wrapper for create_puzzle_singlethread
+// Generates puzzles using either single or multithreaded mode
 gen_result* puzzle_gen_wrapper(bool mt);
+// Wrapper for single threaded puzzle generator. Returns best puzzle for each word order
+gen_result* puzzle_gen_wrapper_st();
+// Wrapper for multi threaded puzzle generator. Returns best puzzle for each word order
+gen_result* puzzle_gen_wrapper_mt();
 // Generate a result struct from a word placement list
 gen_result* generate_result(placement_list* place_list);
 // prints a given board

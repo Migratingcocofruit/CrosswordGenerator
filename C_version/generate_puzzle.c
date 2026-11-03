@@ -228,22 +228,44 @@ placement_list* init_placement_list(int word_index ,bool vertical)
 
 gen_result* puzzle_gen_wrapper(bool mt)
 {
+    return mt ? puzzle_gen_wrapper_mt() : puzzle_gen_wrapper_st();
+}
+
+gen_result* puzzle_gen_wrapper_mt()
+{
     gen_result* res_h = NULL;
     gen_result* res_v = NULL;
 
     placement_list* place_list_h = init_placement_list(0, false);
     placement_list* place_list_v = init_placement_list(0, true);
 
-    if(mt)
+
+    res_h = create_puzzle_multithread(1, place_list_h);
+    res_v = create_puzzle_multithread(1, place_list_v);
+
+
+    // TODO: destroy lists
+
+    if(res_v == NULL || res_h->crossovers > res_v->crossovers)
     {
-        res_h = create_puzzle_multithread(1, place_list_h);
-        res_v = create_puzzle_multithread(1, place_list_v);
+        return res_h;
     }
-    else
-    {
-        res_h = create_puzzle_singlethread(1, place_list_h);
-        res_v = create_puzzle_singlethread(1, place_list_v);
-    }
+    return res_v;
+}
+
+gen_result* puzzle_gen_wrapper_st()
+{
+    gen_result* res_h = NULL;
+    gen_result* res_v = NULL;
+
+    placement_list* place_list_h = init_placement_list(0, false);
+    placement_list* place_list_v = init_placement_list(0, true);
+
+
+    
+    res_h = create_puzzle_singlethread(1, place_list_h);
+    res_v = create_puzzle_singlethread(1, place_list_v);
+    
 
     // TODO: destroy lists
 
