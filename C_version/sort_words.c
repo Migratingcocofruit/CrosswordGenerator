@@ -30,8 +30,18 @@ void split_words(char* buff, int buff_size)
 {
     for(int i = 0, j = 0, k = 0, last = 0; i < buff_size && buff[i-1] != '\0'; i++)
     {
+        
         if(buff[i] == ',' || buff[i] == '\0')
         {
+            if(k > width && k > height)
+            {
+                char too_large[k+1];
+                memcpy(too_large, buff + last, k);
+                too_large[k] = '\0';
+                fprintf(stderr, "\nWord:%s of length:%d too large for board size %dx%d\n", too_large, k, width, height);
+                exit(1);
+            }
+
             memcpy(word_list[j], buff + last, k);
             word_list[j][k] = '\0'; // add null terminator
             j++;
