@@ -335,8 +335,8 @@ gen_result* create_puzzle_multithread(int word_index, placement_list* place_list
 
     gen_result* max_board = NULL, *curr_board = NULL;
 
-    results* res_list, *curr_res;
-    res_list = (results*)malloc(sizeof(results));
+    thread_data* res_list, *curr_res;
+    res_list = (thread_data*)malloc(sizeof(thread_data));
     curr_res = res_list;
     res_list->next = NULL;
 
@@ -358,7 +358,7 @@ gen_result* create_puzzle_multithread(int word_index, placement_list* place_list
                         curr_thread->next = (thread_list*)malloc(sizeof(thread_list));
                         curr_thread = curr_thread->next;
                         curr_thread->next = NULL;
-                        curr_res->next = (results*)malloc(sizeof(results));
+                        curr_res->next = (thread_data*)malloc(sizeof(thread_data));
                         curr_res = curr_res->next;
                         curr_res->next = NULL;
                         curr_res->res = NULL;
@@ -400,7 +400,7 @@ gen_result* create_puzzle_multithread(int word_index, placement_list* place_list
 
 void* multi_single_wrapper(void* curr)
 {
-    results* curr_res = curr;
+    thread_data* curr_res = curr;
     curr_res->res = create_puzzle_singlethread(2, curr_res->place);
 }
 
@@ -434,10 +434,10 @@ void* res_list_dtor(void* res_list)
     {
         return NULL;
     }
-    results* next = ((results*)res_list)->next;
+    thread_data* next = ((thread_data*)res_list)->next;
 
-    place_list_dtor((void*)(((results*)res_list)->place));
-    gen_res_dtor(((results*)res_list)->res);
+    place_list_dtor((void*)(((thread_data*)res_list)->place));
+    gen_res_dtor(((thread_data*)res_list)->res);
     free(res_list);
 
     return (void*)next;

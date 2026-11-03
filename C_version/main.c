@@ -59,11 +59,13 @@ int main()
             printf("%s\n", order_types[3][i]);
         }
 
+    
+
     for(int i = 0; i < 4; i++)
     {
         words = order_types[i];
 
-        gen_result* res = puzzle_gen_wrapper(false);
+        gen_result* res = puzzle_gen_wrapper(true);
 
         printf("\n");
 
