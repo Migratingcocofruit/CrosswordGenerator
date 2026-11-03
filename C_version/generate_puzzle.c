@@ -202,45 +202,37 @@ gen_result* create_puzzle_singlethread(int word_index, placement_list* place_lis
     return max_board;
 }
 
+placement_list* init_placement_list(int word_index ,bool vertical)
+{
+    placement_list* place_list = (placement_list*)malloc(sizeof(placement_list));
+
+    place_list->tail = (placement_node*)malloc(sizeof(placement_node));
+
+    place_list->head = place_list->tail;
+
+    place_list->head->next = NULL;
+    place_list->head->previous = NULL;
+    
+    place_list->head->crossovers = 0;
+
+    place_list->tail->word_index = word_index;
+    place_list->tail->coords[0] = 0;
+    place_list->tail->coords[1] = 0;
+    place_list->tail->coords[2] = 0;
+    place_list->tail->coords[3] = (int)strlen(words[place_list->tail->word_index]) - 1;
+
+    memcpy(place_list->tail->edge_coords, place_list->tail->coords,sizeof(int) * 4);
+
+    return place_list;
+}
+
 gen_result* puzzle_gen_wrapper(bool mt)
 {
     gen_result* res_h = NULL;
     gen_result* res_v = NULL;
 
-    placement_list* place_list_h = (placement_list*)malloc(sizeof(placement_list));
-    placement_list* place_list_v = (placement_list*)malloc(sizeof(placement_list));
-
-    place_list_h->tail = (placement_node*)malloc(sizeof(placement_node));
-    place_list_v->tail = (placement_node*)malloc(sizeof(placement_node));
-
-    place_list_h->head = place_list_h->tail;
-    place_list_v->head = place_list_v->tail;
-
-    place_list_v->head->next = NULL;
-    place_list_v->head->previous = NULL;
-    place_list_h->head->next = NULL;
-    place_list_h->head->previous = NULL;
-    
-    place_list_h->head->crossovers = 0;
-    place_list_v->head->crossovers = 0;
-
-    place_list_h->tail->word_index = 0;
-    place_list_h->tail->coords[0] = 0;
-    place_list_h->tail->coords[1] = 0;
-    place_list_h->tail->coords[2] = (int)strlen(words[place_list_h->tail->word_index]) - 1;
-    place_list_h->tail->coords[3] = 0;
-
-    place_list_v->tail->word_index = 0;
-    place_list_v->tail->coords[0] = 0;
-    place_list_v->tail->coords[1] = 0;
-    place_list_v->tail->coords[2] = 0;
-    place_list_v->tail->coords[3] = (int)strlen(words[place_list_h->tail->word_index]) - 1;
-
-    for(int i = 0; i < 4; i++)
-    {
-        place_list_v->tail->edge_coords[i] = place_list_v->tail->coords[i];
-        place_list_h->tail->edge_coords[i] = place_list_h->tail->coords[i];
-    }
+    placement_list* place_list_h = init_placement_list(0, false);
+    placement_list* place_list_v = init_placement_list(0, true);
 
     if(mt)
     {

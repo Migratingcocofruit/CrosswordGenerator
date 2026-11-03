@@ -75,6 +75,8 @@ gen_result* create_puzzle_multithread(int word_index, placement_list* place_list
 void* multi_single_wrapper(void* place_list);
 // Destroys a list using a given Dtor. Dtor needs to destroy 1 element and return the next one
 void list_dtor(void*(*dtor)(void*), void* list);
+// Initializes a word placement list
+placement_list* init_placement_list(int word_index ,bool vertical);
 
 // dtors.
 void place_list_dtor(placement_list* place);
