@@ -43,15 +43,9 @@ struct Thread_List
 {
     struct Thread_List* next;
     pthread_t thread;
-};
-typedef struct Thread_List thread_list;
-
-struct Thread_Data
-{
-    struct Thread_Data* next;
     placement_list* place;
 };
-typedef struct Thread_Data thread_data;
+typedef struct Thread_List thread_list;
 
 int add_word(int next_word_i, int next_word_place, int attachment_place, placement_node* attachment ,placement_list* place_list);
 
@@ -85,7 +79,6 @@ placement_list* init_placement_list(int word_index ,bool vertical);
 void place_list_dtor(placement_list* place);
 void gen_res_dtor(gen_result* gen_res);
 void* place_node_dtor(void* place_node);
-void* res_list_dtor(void* thread_data);
 void* thread_list_dtor(void* threads);
 
 
