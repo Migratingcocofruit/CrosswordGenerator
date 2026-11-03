@@ -10,7 +10,7 @@ int main()
 
     int order = 0;
 
-    gen_result* res;
+    gen_result* res[ORDER_TYPE_COUNT];
 
     read_words(buff, size);
 
@@ -56,19 +56,15 @@ int main()
             printf("%s\n", order_types[3][i]);
         }
 
-    
+    puzzle_gen_wrapper(res, true);
 
     for(int i = 0; i < 4; i++)
     {
-        words = order_types[i];
-
-        puzzle_gen_wrapper(&res ,false);
-
         printf("\n");
 
         if(res)
         {
-            print_board(res);
+            print_board(res[i]);
         }
         else
         {

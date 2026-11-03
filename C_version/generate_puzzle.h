@@ -67,7 +67,7 @@ void print_board(gen_result* res);
 // copies a word placement list
 placement_list* copy_placement_list(placement_list* placement);
 // Creates threads and assigns work
-placement_list* create_puzzle_multithread(int word_index, placement_list* place_list);
+void create_puzzle_multithread(int word_index, placement_list* place_list, thread_list** thread_head);
 // Function called by each thread of the multithreaded puzzle generator
 void* multi_single_wrapper(void* place_list);
 // Destroys a list using a given Dtor. Dtor needs to destroy 1 element and return the next one
