@@ -62,7 +62,7 @@ int main()
     {
         words = order_types[i];
 
-        puzzle_gen_wrapper(&res ,true);
+        puzzle_gen_wrapper(&res ,false);
 
         printf("\n");
 

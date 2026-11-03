@@ -165,14 +165,14 @@ gen_result* generate_result(placement_list* place_list)
     return res;
 }
 
-gen_result* create_puzzle_singlethread(int word_index, placement_list* place_list)
+placement_list* create_puzzle_singlethread(int word_index, placement_list* place_list)
 {
     if(word_index >= word_count)
     {
-        return generate_result(place_list);
+        return place_list;
     }
 
-    gen_result* max_board = NULL, *curr_board = NULL;
+    placement_list* max_board = NULL, *curr_board = NULL;
 
     placement_node* curr_word = place_list->tail;
 
@@ -187,10 +187,10 @@ gen_result* create_puzzle_singlethread(int word_index, placement_list* place_lis
                     if(add_word(word_index, i, j, curr_word, place_list) > 0)
                     {
                         curr_board = create_puzzle_singlethread(word_index + 1, place_list);
-                        if(curr_board && (max_board == NULL || curr_board->crossovers > max_board->crossovers))
+                        if(curr_board && (max_board == NULL || curr_board->tail->crossovers > max_board->tail->crossovers))
                         {
-                            gen_res_dtor(max_board);
-                            max_board = curr_board;
+                            place_list_dtor(max_board);
+                            max_board = copy_placement_list(curr_board);
                         }
                         remove_tail(place_list);
                     }
@@ -240,8 +240,8 @@ void puzzle_gen_wrapper_mt(gen_result** res)
     placement_list* place_list_v = init_placement_list(0, true);
 
 
-    res_h = create_puzzle_multithread(1, place_list_h);
-    res_v = create_puzzle_multithread(1, place_list_v);
+    res_h = generate_result(create_puzzle_multithread(1, place_list_h));
+    res_v = generate_result(create_puzzle_multithread(1, place_list_v));
 
 
     // TODO: destroy lists
@@ -263,8 +263,8 @@ void puzzle_gen_wrapper_st(gen_result** res)
 
 
     
-    res_h = create_puzzle_singlethread(1, place_list_h);
-    res_v = create_puzzle_singlethread(1, place_list_v);
+    res_h = generate_result(create_puzzle_singlethread(1, place_list_h));
+    res_v = generate_result(create_puzzle_singlethread(1, place_list_v));
     
 
     place_list_dtor(place_list_h);
@@ -329,13 +329,13 @@ placement_list* copy_placement_list(placement_list* placement)
     return new_list;
 }
 
-gen_result* create_puzzle_multithread(int word_index, placement_list* place_list)
+placement_list* create_puzzle_multithread(int word_index, placement_list* place_list)
 {
     thread_list* thread_head = (thread_list*)malloc(sizeof(thread_list));
     thread_list* curr_thread = thread_head;
     thread_head->next = NULL;
 
-    gen_result* max_board = NULL, *curr_board = NULL;
+    placement_list* max_board = NULL, *curr_board = NULL;
 
     thread_data* res_list, *curr_res;
     res_list = (thread_data*)malloc(sizeof(thread_data));
@@ -355,7 +355,6 @@ gen_result* create_puzzle_multithread(int word_index, placement_list* place_list
                     if(add_word(word_index, i, j, curr_word, place_list) > 0)
                     {
                         curr_res->place = copy_placement_list(place_list);
-                        curr_res->res = NULL;
                         pthread_create(&(curr_thread->thread), NULL, multi_single_wrapper, (void*)curr_res);
                         curr_thread->next = (thread_list*)malloc(sizeof(thread_list));
                         curr_thread = curr_thread->next;
@@ -363,7 +362,6 @@ gen_result* create_puzzle_multithread(int word_index, placement_list* place_list
                         curr_res->next = (thread_data*)malloc(sizeof(thread_data));
                         curr_res = curr_res->next;
                         curr_res->next = NULL;
-                        curr_res->res = NULL;
                         curr_res->place = NULL;
                     }
                     remove_tail(place_list);
@@ -388,11 +386,11 @@ gen_result* create_puzzle_multithread(int word_index, placement_list* place_list
 
     while(curr_res)
     {
-        if(curr_res && curr_res->res && (!max_board || max_board->crossovers < curr_res->res->crossovers))
+        if(curr_res && curr_res->place && (!max_board || max_board->tail->crossovers < curr_res->place->tail->crossovers))
         {
-            gen_res_dtor(max_board);
-            max_board = curr_res->res;
-            curr_res->res = NULL;
+            place_list_dtor(max_board);
+            max_board = curr_res->place;
+            curr_res->place = NULL;
         }
         curr_res = res_list_dtor(curr_res);
     }
@@ -403,7 +401,7 @@ gen_result* create_puzzle_multithread(int word_index, placement_list* place_list
 void* multi_single_wrapper(void* curr)
 {
     thread_data* curr_res = curr;
-    curr_res->res = create_puzzle_singlethread(2, curr_res->place);
+    curr_res->place = create_puzzle_singlethread(2, curr_res->place);
 }
 
 void list_dtor(void*(*dtor)(void*), void* list)
@@ -439,7 +437,6 @@ void* res_list_dtor(void* res_list)
     thread_data* next = ((thread_data*)res_list)->next;
 
     place_list_dtor((void*)(((thread_data*)res_list)->place));
-    gen_res_dtor(((thread_data*)res_list)->res);
     free(res_list);
 
     return (void*)next;

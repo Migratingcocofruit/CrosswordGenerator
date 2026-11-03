@@ -50,7 +50,6 @@ struct Thread_Data
 {
     struct Thread_Data* next;
     placement_list* place;
-    gen_result* res;
 };
 typedef struct Thread_Data thread_data;
 
@@ -60,7 +59,7 @@ void remove_tail(placement_list* place_list);
 // Try to place a word in the list. Retunrs number of crossovers if successful and -1 otherwise.
 int place_word(placement_node* new_word, placement_list* place_list);
 // Generate a board with maximal crossovers(single threaded)
-gen_result* create_puzzle_singlethread(int word_index, placement_list* place_list);
+placement_list* create_puzzle_singlethread(int word_index, placement_list* place_list);
 // Generates puzzles using either single or multithreaded mode
 void puzzle_gen_wrapper(gen_result** res, bool mt);
 // Wrapper for single threaded puzzle generator. Returns best puzzle for each word order
@@ -74,7 +73,7 @@ void print_board(gen_result* res);
 // copies a word placement list
 placement_list* copy_placement_list(placement_list* placement);
 // Creates threads and assigns work
-gen_result* create_puzzle_multithread(int word_index, placement_list* place_list);
+placement_list* create_puzzle_multithread(int word_index, placement_list* place_list);
 // Function called by each thread of the multithreaded puzzle generator
 void* multi_single_wrapper(void* place_list);
 // Destroys a list using a given Dtor. Dtor needs to destroy 1 element and return the next one
