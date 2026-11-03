@@ -15,21 +15,16 @@ int main()
     count_words(buff, size);
 
     order_types = (char***)malloc(sizeof(char**) * 4);
-
-    word_list = (char**)malloc(word_count * sizeof(char**));
-    order_types[3] = (char**)malloc(word_count * sizeof(char**));
-    order_types[1] = (char**)malloc(word_count * sizeof(char**));
-    order_types[2] = (char**)malloc(word_count * sizeof(char**));
-
-    for(int i = 0; i < word_count ; i++)
+    for(int i = 0; i < ORDER_TYPE_COUNT; i++)
     {
-        word_list[i] = (char*)malloc(word_length * sizeof(char));
-        order_types[1][i] = (char*)malloc(word_length * sizeof(char));
-        order_types[2][i] = (char*)malloc(word_length * sizeof(char));
-        order_types[3][i] = (char*)malloc(word_length * sizeof(char));
+        order_types[i] = (char**)malloc(word_count * sizeof(char**));
+        for(int j = 0; j < word_count ; j++)
+        {
+            order_types[i][j] = (char*)malloc(word_length * sizeof(char));
+        }
     }
 
-    order_types[0] = word_list;
+    word_list = order_types[0];
     
     split_words(buff, size);
 
@@ -80,15 +75,12 @@ int main()
     }
     
     free(buff);
-    for(int i = 0; i < word_count; i++)
+    for(int i = 0; i < ORDER_TYPE_COUNT; i++)
     {
-        free(word_list[i]);
-        free(order_types[2][i]);
-        free(order_types[1][i]);
-        free(order_types[3][i]);
+        for(int j = 0; j < word_count; j++)
+        {
+            free(order_types[i][j]);
+        }
+        free(order_types[i]);
     }
-    free(word_list);
-    free(order_types[2]);
-    free(order_types[1]);
-    free(order_types[3]);
 }
