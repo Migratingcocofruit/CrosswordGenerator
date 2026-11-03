@@ -1,1 +1,1 @@
-%cd%\build\crosswords_c_version.exe %cd%\C_version\words.txt 15 15
+%~dp0\build\crosswords_c_version.exe %~dp0\C_version\words.txt 15 15
