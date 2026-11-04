@@ -5,9 +5,9 @@ void read_words(char* buff, int size, char* path)
     FILE* fp;
     if(fopen_s(&fp , path, "r") != 0)
     {
-        perror("failed");
-        printf("unable to open file: %s", FILE_PATH);
-        return;
+        fprintf(stderr,"unable to open file \"%s\"", path);
+        perror(": ");
+        exit(1);
     }
     fgets(buff, size, fp);
     fclose(fp);
