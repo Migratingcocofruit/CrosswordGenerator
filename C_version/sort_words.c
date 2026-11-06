@@ -23,6 +23,11 @@ void count_words(char* buff, int size)
             word_count++;
         }
     }
+    if(word_count < 2)
+    {
+        fprintf(stderr, "not enough words in file\n");
+        exit(1);
+    }
     return;
 }
 

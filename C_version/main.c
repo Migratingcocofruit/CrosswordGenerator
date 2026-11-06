@@ -35,8 +35,6 @@ int main(int argc, char* argv[])
 
     char* buff = (char*)malloc(size * sizeof(char));
 
-    int order = 0;
-
     gen_result* res[ORDER_TYPE_COUNT];
 
     read_words(buff, size, path);
