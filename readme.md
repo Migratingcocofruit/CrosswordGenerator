@@ -1,6 +1,6 @@
 # Crossword Generator
 ## What it does
-This is a generator for a crossword's word grid of a given length and width which tries to maximize intersections when generating the puzzle.  
+This program generates a word grid of a given length and width for a crossword while trying to maximize intersections between words.  
 ## Usage
 To use run:
 
