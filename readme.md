@@ -5,7 +5,7 @@ This program generates a word grid of a given length and width for a crossword w
 ### C version
 To use run:
 
-crosswords_C_version.exe \<filepath> \<width> \<height>
+crossword_generator.exe \<filepath> \<width> \<height>
 
 where:
 
